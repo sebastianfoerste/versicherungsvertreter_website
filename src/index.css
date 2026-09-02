@@ -1,0 +1,233 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   gunnercooke design tokens (derived from gunnercooke.de)
+   ------------------------------------------------------------------ */
+@theme {
+  --font-sans: "Lato", Arial, Helvetica, sans-serif;
+
+  --color-gc-burgundy: #aa1d47;
+  --color-gc-burgundy-dark: #8e1538;
+  --color-gc-gold: #a87530;
+  --color-gc-gold-text: #996a2b;
+  --color-gc-black: #131313;
+  --color-gc-body: #212529;
+  --color-gc-muted: #5c636b;
+  --color-gc-soft: #7a7e85;
+  --color-gc-light: #f9f9f9;
+  --color-gc-border: #cdcdcd;
+  --color-gc-border-light: #dfdfdf;
+  --color-gc-rose: #faf2f5;
+  --color-gc-rose-border: #f0d5dd;
+  --color-gc-ink: #1b1e22;
+  --color-gc-ink-border: #33383f;
+  --color-gc-ink-text: #d0cfc9;
+}
+
+:root {
+  --gc-header-height: 127px;
+}
+@media (max-width: 1023px) {
+  :root {
+    --gc-header-height: 66px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Base typography (Lato 300, 0.7px tracking like gunnercooke.de)
+   ------------------------------------------------------------------ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--gc-header-height) + 56px);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: var(--color-gc-body);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 26px;
+    letter-spacing: 0.7px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1 {
+    color: var(--color-gc-burgundy);
+    font-size: 30px;
+    font-weight: 300;
+    line-height: 38px;
+  }
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 34px;
+      line-height: 41px;
+    }
+  }
+
+  h2 {
+    color: var(--color-gc-gold);
+    font-size: 24px;
+    font-weight: 300;
+    line-height: 32px;
+  }
+
+  h3 {
+    color: var(--color-gc-black);
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 30px;
+  }
+
+  h4,
+  h5,
+  h6 {
+    color: var(--color-gc-black);
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 26px;
+  }
+
+  strong,
+  b {
+    font-weight: 400;
+    color: var(--color-gc-black);
+  }
+
+  ::selection {
+    background-color: var(--color-gc-burgundy);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gc-burgundy);
+    outline-offset: 2px;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    letter-spacing: inherit;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Reusable gunnercooke-style components
+   ------------------------------------------------------------------ */
+@layer components {
+  .gc-container {
+    @apply mx-auto w-full max-w-[1200px] px-5 sm:px-8;
+  }
+
+  .gc-section {
+    @apply py-14 md:py-20;
+  }
+
+  .gc-eyebrow {
+    @apply text-[12px] font-normal uppercase tracking-[0.2em] text-gc-gold-text;
+  }
+
+  .gc-lead {
+    @apply text-[17px] leading-[28px] text-gc-body;
+  }
+
+  .gc-btn-primary,
+  .gc-btn-secondary,
+  .gc-btn-light {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 border px-6 py-3 text-[13px] font-normal uppercase tracking-[0.15em] transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .gc-btn-primary {
+    @apply border-gc-burgundy bg-gc-burgundy text-white hover:border-gc-burgundy-dark hover:bg-gc-burgundy-dark;
+  }
+  .gc-btn-secondary {
+    @apply border-gc-black bg-transparent text-gc-black hover:bg-gc-black hover:text-white;
+  }
+  .gc-btn-light {
+    @apply border-white bg-transparent text-white hover:bg-white hover:text-gc-black;
+  }
+  .gc-btn-sm {
+    @apply px-4 py-2 text-[12px];
+  }
+
+  .gc-link {
+    @apply text-gc-burgundy underline-offset-4 transition-colors hover:text-gc-burgundy-dark hover:underline;
+  }
+
+  .gc-label {
+    @apply mb-1.5 block text-[12px] font-normal uppercase tracking-[0.15em] text-gc-muted;
+  }
+
+  .gc-input {
+    @apply w-full border border-gc-border bg-white px-3.5 py-2.5 text-[15px] font-light text-gc-body placeholder:text-gc-soft focus:border-gc-burgundy focus:outline-none;
+  }
+
+  .gc-card {
+    @apply border border-gc-border-light bg-white p-6 md:p-8;
+  }
+
+  .gc-choice {
+    @apply w-full cursor-pointer border border-gc-border bg-white px-4 py-3 text-left text-[15px] font-light text-gc-body transition-colors hover:border-gc-black;
+  }
+  .gc-choice[data-selected="true"] {
+    @apply border-gc-burgundy bg-gc-rose text-gc-black;
+  }
+
+  .gc-list {
+    @apply space-y-2.5;
+  }
+  .gc-list > li {
+    @apply relative pl-5;
+  }
+  .gc-list > li::before {
+    content: "";
+    @apply absolute top-[11px] left-0 h-[5px] w-[5px] bg-gc-burgundy;
+  }
+
+  .gc-nav-link {
+    @apply relative text-[13px] font-normal uppercase tracking-[0.15em] text-gc-black transition-colors hover:text-gc-burgundy;
+  }
+  .gc-nav-link::after {
+    content: "";
+    @apply absolute -bottom-2 left-0 h-[2px] w-0 bg-gc-burgundy transition-all duration-200;
+  }
+  .gc-nav-link:hover::after,
+  .gc-nav-link[aria-current="page"]::after {
+    @apply w-full;
+  }
+
+  .gc-divider {
+    @apply h-px w-full bg-gc-border-light;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Print: only output the generated letter
+   ------------------------------------------------------------------ */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: #fff;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
