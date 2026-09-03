@@ -20,8 +20,7 @@ export default function Overview() {
             </h2>
             <p className="gc-lead mb-6">
               Versicherungsvertreter bauen über Jahre einen Bestand auf, von dem der Versicherer
-              nach Vertragsende weiter profitiert. Der Ausgleichsanspruch ist das gesetzliche Gegengewicht – in der
-              Praxis wird er jedoch häufig zu spät, zu niedrig oder auf unzureichender Datenbasis geltend gemacht.
+              nach Vertragsende weiter profitiert. Der Ausgleichsanspruch ist das gesetzliche Gegengewicht, viele Vertreter machen ihn jedoch zu spät oder zu niedrig geltend.
             </p>
 
             <p className="mb-2 text-[13px] font-normal uppercase tracking-[0.18em] text-gc-black">Zusammenfassung:</p>
