@@ -60,7 +60,7 @@ export function FAQ() {
             Fragen zum Ausgleichsanspruch nach § 89b HGB
           </h2>
           <p className="text-[15px] leading-[25px] text-gc-muted">
-            Die wichtigsten Antworten für Versicherungsvertreterinnen und -vertreter im Überblick. Ihre Frage ist nicht
+            Die wichtigsten Antworten für Versicherungsvertreter im Überblick. Ihre Frage ist nicht
             dabei?{" "}
             <a href="#kontakt" className="gc-link">
               Sprechen Sie uns an.

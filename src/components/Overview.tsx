@@ -19,7 +19,7 @@ export default function Overview() {
               Ihr Partner für den Ausgleichsanspruch nach § 89b HGB: Von der ersten Einordnung bis zur Durchsetzung
             </h2>
             <p className="gc-lead mb-6">
-              Versicherungsvertreterinnen und -vertreter bauen über Jahre einen Bestand auf, von dem der Versicherer
+              Versicherungsvertreter bauen über Jahre einen Bestand auf, von dem der Versicherer
               nach Vertragsende weiter profitiert. Der Ausgleichsanspruch ist das gesetzliche Gegengewicht – in der
               Praxis wird er jedoch häufig zu spät, zu niedrig oder auf unzureichender Datenbasis geltend gemacht.
             </p>
