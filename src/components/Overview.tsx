@@ -71,7 +71,7 @@ export default function Overview() {
               Wann besteht ein Ausgleichsanspruch?
             </h2>
             <p className="text-[16px] leading-[26px] text-gc-muted">
-              Vier Voraussetzungen müssen kumulativ vorliegen. Für Versicherungsvertreter gelten dabei Besonderheiten:
+              Vier Voraussetzungen müssen zusammen vorliegen. Für Versicherungsvertreter gelten dabei Besonderheiten:
               Maßgeblich sind die von Ihnen vermittelten Versicherungsverträge, nicht die Kundenbeziehung als solche
               (§ 89b Abs. 5 HGB).
             </p>
