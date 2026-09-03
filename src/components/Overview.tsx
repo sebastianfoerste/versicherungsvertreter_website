@@ -27,7 +27,7 @@ export default function Overview() {
             <p className="mb-8 text-gc-body">
               Wir prüfen Ihren Agenturvertrag und die Umstände der Beendigung, wahren die einjährige Ausschlussfrist,
               setzen den Buchauszug nach § 87c HGB durch und beziffern Ihren Anspruch nach den anerkannten
-              Berechnungsgrundsätzen. Anschließend verhandeln wir mit dem Versicherer – und vertreten Sie, wo nötig,
+              Berechnungsgrundsätzen. Anschließend verhandeln wir mit dem Versicherer und vertreten Sie, wo nötig,
               vor Gericht. Digitale Werkzeuge wie unser Vorab-Check und der Orientierungsrechner strukturieren die
               erste Einordnung; die rechtliche Bewertung erfolgt persönlich durch unsere Partner.
             </p>
