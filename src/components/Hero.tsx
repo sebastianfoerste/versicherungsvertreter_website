@@ -51,14 +51,17 @@ export default function Hero() {
         <div className="relative lg:col-span-6">
           <div className="absolute -bottom-4 -left-4 hidden h-full w-full border border-gc-gold/50 md:block" aria-hidden="true" />
           <figure className="relative overflow-hidden bg-gc-light">
-            <img
-              src="/images/hero-ausgleichsanspruch.jpg"
-              alt="Prüfung eines Agenturvertrags in einer Kanzlei"
-              className="aspect-[16/11] h-auto w-full object-cover"
-              width={1600}
-              height={1100}
-              fetchPriority="high"
-            />
+            <picture>
+              <source srcSet="/images/hero-ausgleichsanspruch.webp" type="image/webp" />
+              <img
+                src="/images/hero-ausgleichsanspruch.jpg"
+                alt="Beratung zum Ausgleichsanspruch für Versicherungsvertreter"
+                className="aspect-[16/10] sm:aspect-[16/9] h-auto w-full object-cover"
+                width={1376}
+                height={768}
+                fetchPriority="high"
+              />
+            </picture>
             <figcaption className="absolute right-0 bottom-0 bg-gc-burgundy px-5 py-3 text-[12px] uppercase tracking-[0.18em] text-white">
               Handelsvertreterrecht
             </figcaption>
