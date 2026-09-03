@@ -6,7 +6,7 @@
 export const SITE = {
   name: "gunnercooke",
   legalName: "gunnercooke GmbH",
-  baseUrl: "https://www.gunnercooke.de",
+  baseUrl: "https://gunnercookede.com",
   pagePath:
     "/expertise/commercial/vertrieb-handel-logistik/ausgleichsanspruch-versicherungsvertreter/",
   phone: "+49 30 220 131 000",
@@ -25,7 +25,7 @@ export const PARTNER = {
   email: "sebastian.foerste@gunnercooke.com",
   phone: "+49 30 220 131 000",
   phoneHref: "tel:+4930220131000",
-  profileUrl: "https://www.gunnercooke.de/people/sebastian-foerste/",
+  profileUrl: "https://gunnercookede.com/people/sebastian-foerste/",
   portraitSrc: "/portrait.webp",
   initials: "SF",
   bio: [
@@ -34,26 +34,23 @@ export const PARTNER = {
   ],
 };
 
-/** Hauptnavigation gunnercooke.de (Labels wie auf der Hauptseite) */
+/** Hauptnavigation gunnercookede.com (Labels wie auf der Hauptseite) */
 export const MAIN_NAV = [
-  { label: "Expertise", href: `${SITE.baseUrl}/expertise/`, current: true },
-  { label: "Our Approach", href: `${SITE.baseUrl}/our-approach/` },
-  { label: "Consulting", href: `${SITE.baseUrl}/consulting/` },
-  { label: "News & Insights", href: `${SITE.baseUrl}/news-insights/` },
-  { label: "Join Us", href: `${SITE.baseUrl}/join-us/` },
-  { label: "Get in Touch", href: `${SITE.baseUrl}/get-in-touch/` },
+  { label: "People", href: `${SITE.baseUrl}/people/` },
+  { label: "Expertise", href: "#ueberblick", current: true },
+  { label: "Our Approach", href: "#vorgehen" },
+  { label: "Rechner & Fristen", href: "#rechner" },
+  { label: "FAQ", href: "#faq" },
+  { label: "Get in Touch", href: "#kontakt" },
 ];
 
 /** Breadcrumb dieser Unterseite */
 export const BREADCRUMB = [
   { label: "Home", href: `${SITE.baseUrl}/` },
-  { label: "Expertise", href: `${SITE.baseUrl}/expertise/` },
-  { label: "Commercial", href: `${SITE.baseUrl}/expertise/commercial/` },
-  {
-    label: "Vertrieb, Handel & Logistik",
-    href: `${SITE.baseUrl}/expertise/commercial/vertrieb-handel-logistik/`,
-  },
-  { label: "Ausgleichsanspruch Versicherungsvertreter" },
+  { label: "Expertise", href: `${SITE.baseUrl}/practice-area/commercial-law/` },
+  { label: "Commercial Law", href: `${SITE.baseUrl}/practice-area/commercial-law/` },
+  { label: "Vertriebsrecht" },
+  { label: "Ausgleichsanspruch Versicherungsvertreter (§ 89b HGB)" },
 ];
 
 /** Sprungmarken innerhalb der Seite ("Auf dieser Seite") */

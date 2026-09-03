@@ -22,10 +22,13 @@
   --color-gc-ink: #1b1e22;
   --color-gc-ink-border: #33383f;
   --color-gc-ink-text: #d0cfc9;
+  --color-gc-slate: #727375;
+  --color-gc-slate-light: #959597;
+  --color-gc-slate-text: #b1b2b3;
 }
 
 :root {
-  --gc-header-height: 127px;
+  --gc-header-height: 76px;
 }
 @media (max-width: 1023px) {
   :root {
@@ -121,7 +124,7 @@
    ------------------------------------------------------------------ */
 @layer components {
   .gc-container {
-    @apply mx-auto w-full max-w-[1200px] px-5 sm:px-8;
+    @apply mx-auto w-full max-w-[1140px] px-4 sm:px-6;
   }
 
   .gc-section {
@@ -189,15 +192,18 @@
   }
 
   .gc-nav-link {
-    @apply relative text-[13px] font-normal uppercase tracking-[0.15em] text-gc-black transition-colors hover:text-gc-burgundy;
+    @apply relative text-[14px] font-normal tracking-[0.02em] text-[#727375] transition-colors hover:text-gc-burgundy;
   }
   .gc-nav-link::after {
     content: "";
-    @apply absolute -bottom-2 left-0 h-[2px] w-0 bg-gc-burgundy transition-all duration-200;
+    @apply absolute -bottom-1.5 left-0 h-[2px] w-0 bg-gc-burgundy transition-all duration-200;
   }
   .gc-nav-link:hover::after,
   .gc-nav-link[aria-current="page"]::after {
     @apply w-full;
+  }
+  .gc-nav-link[aria-current="page"] {
+    @apply text-gc-burgundy;
   }
 
   .gc-divider {

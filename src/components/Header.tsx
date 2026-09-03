@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { MAIN_NAV, PAGE_SECTIONS, SITE } from "../config";
+import { MAIN_NAV, PAGE_SECTIONS, PARTNER, SITE } from "../config";
 import { cn } from "../utils/cn";
 import SearchModal from "./SearchModal";
 
 export function Logo({ className, light = false }: { className?: string; light?: boolean }) {
   return (
     <a
-      href={`${SITE.baseUrl}/`}
+      href="https://gunnercookede.com"
       aria-label="gunnercooke – zur Startseite"
       className={cn(
         "inline-flex items-center select-none transition-opacity hover:opacity-85",
@@ -17,7 +17,7 @@ export function Logo({ className, light = false }: { className?: string; light?:
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 238.00449 46.38397"
-        className="h-6 w-auto fill-current sm:h-7 lg:h-8"
+        className={cn("h-auto fill-current", light ? "w-[175px]" : "w-[125px] sm:w-[145px] lg:w-[175px]")}
         aria-hidden="true"
       >
         <path d="M20.953,13.387a6.673,6.673,0,0,1-2.202,2.454l-2.682-.202a6.63483,6.63483,0,0,1,1.417,4.327c0,5.162-4.226,7.718-8.401,7.718A14.6779,14.6779,0,0,1,6.63,27.431c-.708.532-1.543,1.467-1.543,2.126,0,.936.784,1.771,2.91,1.771,1.923,0,3.669-.026,5.314-.026,3.037,0,6.858,1.013,6.858,5.72,0,4.808-5.542,9.362-11.843,9.362C3.062,46.384.051,43.272,0,40.463a3.97349,3.97349,0,0,1,1.139-2.784,47.22981,47.22981,0,0,1,3.897-3.39,6.23516,6.23516,0,0,1-3.518-2.582,3.6404,3.6404,0,0,1-.481-1.923,9.63132,9.63132,0,0,0,4.05-2.96,6.85583,6.85583,0,0,1-4.05-6.326c0-5.467,4.935-7.997,8.554-7.997h.05a9.85522,9.85522,0,0,1,4.505,1.164,58.42428,58.42428,0,0,0,6.478-.708ZM10.3,34.389c-2.303,0-3.392.33-4.328,1.14a5.18607,5.18607,0,0,0-2.353,3.897c0,2.631,2.833,4.402,6.352,4.402,4.706,0,7.136-2.328,7.136-5.339a3.49564,3.49564,0,0,0-2.075-3.39,11.03956,11.03956,0,0,0-4.682-.71ZM9.034,13.994c-2.177,0-4.175,2.126-4.175,5.794,0,3.69495,2.049,6.276,4.732,6.276,2.201-.024,4.226-1.998,4.226-5.668,0-3.846-2.025-6.402-4.732-6.402Z" />
@@ -42,7 +42,7 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 10);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -58,149 +58,150 @@ export default function Header() {
   return (
     <header
       className={cn(
-        "no-print fixed inset-x-0 top-0 z-50 bg-white transition-shadow duration-200",
-        scrolled ? "shadow-[0_1px_0_0_#dfdfdf,0_6px_18px_-12px_rgba(0,0,0,0.25)]" : "shadow-[0_1px_0_0_#dfdfdf]",
+        "no-print fixed inset-x-0 top-0 z-50 bg-white transition-all duration-300",
+        scrolled
+          ? "shadow-[0_3px_25px_rgba(0,0,0,0.08)] py-3.5 lg:py-4"
+          : "border-b border-[#dfdfdf] py-4 lg:py-5",
       )}
     >
-      {/* Utility bar (desktop) */}
-      <div className="hidden border-b border-gc-border-light bg-gc-light lg:block">
-        <div className="gc-container flex h-[41px] items-center justify-between text-[12px] tracking-[0.12em] text-gc-muted">
-          <div className="flex items-center gap-6">
-            <a href={SITE.phoneHref} className="transition-colors hover:text-gc-burgundy">
-              {SITE.phone}
-            </a>
-            <a href={`mailto:${SITE.email}`} className="transition-colors hover:text-gc-burgundy">
-              {SITE.email}
-            </a>
-          </div>
-          <div className="flex items-center gap-6 uppercase">
-            <a href={`${SITE.baseUrl}/people/`} className="transition-colors hover:text-gc-burgundy">
-              People
-            </a>
-            <a href={`${SITE.baseUrl}/standorte/`} className="transition-colors hover:text-gc-burgundy">
-              Standorte
-            </a>
-            <span className="flex items-center gap-1.5" aria-label="Sprache">
-              <span className="font-normal text-gc-black" aria-current="true">
-                DE
-              </span>
-              <span className="text-gc-border">|</span>
-              <a href="https://gunnercooke.com/" className="transition-colors hover:text-gc-burgundy">
-                EN
-              </a>
-            </span>
+      <div className="gc-container flex items-center justify-between">
+        {/* Left: Brand logo */}
+        <Logo />
+
+        {/* Right: Desktop Navigation aligned to gunnercookede.com */}
+        <div className="hidden lg:flex items-center gap-7 xl:gap-8">
+          <nav aria-label="Hauptnavigation">
+            <ul className="flex items-center gap-6 xl:gap-8" id="menu-main-nav">
+              {MAIN_NAV.map((item) => (
+                <li key={item.label} className="relative">
+                  <a
+                    href={item.href}
+                    className={cn(
+                      "gc-nav-link block py-1",
+                      item.label === "Get in Touch" && "text-gc-black font-normal hover:text-gc-burgundy",
+                    )}
+                    aria-current={item.current ? "page" : undefined}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Inline Search box matching gunnercookede.com .search-box */}
+          <div className="search-box">
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="flex cursor-pointer items-center gap-1.5 transition-colors hover:text-gc-burgundy"
-              aria-label="Suche"
+              className="flex items-center justify-between w-[110px] h-[32px] px-2.5 border border-[#ccc] bg-white text-[13px] text-[#727375] transition-colors hover:border-gc-burgundy cursor-pointer focus:border-gc-burgundy focus:outline-none"
+              aria-label="Suche öffnen"
             >
-              <SearchIcon />
-              <span>Suche</span>
+              <span className="text-[#888]">Suche</span>
+              <SearchIcon className="w-3.5 h-3.5 text-[#727375]" />
             </button>
           </div>
+
+          {/* Language Switcher */}
+          <div className="flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#727375] select-none">
+            <span className="font-normal text-gc-black" aria-current="true">DE</span>
+            <span className="text-gc-border">|</span>
+            <a
+              href="https://gunnercooke.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-gc-burgundy"
+              title="gunnercooke UK / International"
+            >
+              EN
+            </a>
+          </div>
         </div>
-      </div>
 
-      {/* Main bar */}
-      <div className="gc-container flex h-[66px] items-center justify-between lg:h-[86px]">
-        <Logo />
-
-        <nav aria-label="Hauptnavigation" className="hidden items-center gap-8 lg:flex xl:gap-10">
-          {MAIN_NAV.map((item) =>
-            item.label === "Get in Touch" ? (
-              <a key={item.label} href="#kontakt" className="gc-btn-primary gc-btn-sm">
-                {item.label}
-              </a>
-            ) : (
-              <a
-                key={item.label}
-                href={item.href}
-                className="gc-nav-link"
-                aria-current={item.current ? "page" : undefined}
-              >
-                {item.label}
-              </a>
-            ),
-          )}
-        </nav>
-
-        <div className="flex items-center gap-2 lg:hidden">
+        {/* Mobile controls: Search + gunnercooke signature MENU/CLOSE button */}
+        <div className="flex items-center gap-3 lg:hidden">
           <button
             type="button"
             onClick={() => setSearchOpen(true)}
-            className="flex h-11 w-11 items-center justify-center text-gc-black hover:text-gc-burgundy"
+            className="flex h-10 w-10 items-center justify-center text-gc-black hover:text-gc-burgundy transition-colors"
             aria-label="Suche öffnen"
           >
-            <SearchIcon />
+            <SearchIcon className="w-4 h-4" />
           </button>
+
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Menü schließen" : "Menü öffnen"}
-            className="flex h-11 w-11 items-center justify-center text-gc-black"
+            className="cursor-pointer py-1.5 px-2 text-[14px] font-normal uppercase tracking-[1.4px] text-gc-black transition-colors hover:text-gc-burgundy select-none"
           >
-          <span className="relative block h-4 w-6">
-            <span
-              className={cn(
-                "absolute left-0 block h-[1.5px] w-6 bg-current transition-all duration-200",
-                open ? "top-[7px] rotate-45" : "top-0",
-              )}
-            />
-            <span
-              className={cn(
-                "absolute top-[7px] left-0 block h-[1.5px] w-6 bg-current transition-opacity duration-200",
-                open ? "opacity-0" : "opacity-100",
-              )}
-            />
-            <span
-              className={cn(
-                "absolute left-0 block h-[1.5px] w-6 bg-current transition-all duration-200",
-                open ? "top-[7px] -rotate-45" : "top-[14px]",
-              )}
-            />
-          </span>
-        </button>
+            {open ? "CLOSE" : "MENU"}
+          </button>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile drawer backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 top-[66px] bg-black/40 backdrop-blur-[2px] z-40 lg:hidden transition-opacity"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile Drawer menu matching gunnercookede.com */}
       <div
         id="mobile-menu"
         className={cn(
-          "fixed inset-x-0 top-[66px] bottom-0 overflow-y-auto border-t border-gc-border-light bg-white transition-transform duration-300 lg:hidden",
+          "fixed top-[66px] right-0 bottom-0 w-full max-w-[340px] bg-white border-l border-gc-border-light shadow-2xl z-50 overflow-y-auto transition-transform duration-300 ease-in-out lg:hidden",
           open ? "translate-x-0" : "translate-x-full",
         )}
       >
-        <div className="gc-container py-6">
-          <nav aria-label="Hauptnavigation mobil" className="flex flex-col divide-y divide-gc-border-light">
-            {MAIN_NAV.map((item) => (
-              <a
-                key={item.label}
-                href={item.label === "Get in Touch" ? "#kontakt" : item.href}
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-between py-4 text-[14px] uppercase tracking-[0.15em] text-gc-black"
-                aria-current={item.current ? "page" : undefined}
-              >
-                {item.label}
-                <span className="text-gc-burgundy" aria-hidden="true">
-                  ›
-                </span>
-              </a>
-            ))}
+        <div className="p-6">
+          {/* Mobile Search button */}
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                setSearchOpen(true);
+              }}
+              className="flex w-full items-center justify-between border border-[#ccc] bg-white px-3 py-2.5 text-[14px] text-[#727375] hover:border-gc-burgundy"
+            >
+              <span>Suche nach Stichwort oder § …</span>
+              <SearchIcon className="w-4 h-4 text-[#727375]" />
+            </button>
+          </div>
+
+          {/* Main navigation list */}
+          <nav aria-label="Mobile Navigation">
+            <ul className="divide-y divide-gc-border-light text-[15px] font-normal text-gc-body">
+              {MAIN_NAV.map((item) => (
+                <li key={item.label}>
+                  <a
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="block py-3 transition-colors hover:text-gc-burgundy"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </nav>
 
-          <div className="mt-8">
-            <div className="gc-eyebrow mb-3">Auf dieser Seite</div>
-            <div className="flex flex-wrap gap-2">
+          {/* Section jump links */}
+          <div className="mt-8 border-t border-gc-border-light pt-6">
+            <div className="gc-eyebrow mb-3 text-[11px] text-gc-soft">Auf dieser Seite</div>
+            <div className="grid grid-cols-2 gap-2">
               {PAGE_SECTIONS.map((s) => (
                 <a
                   key={s.id}
                   href={`#${s.id}`}
                   onClick={() => setOpen(false)}
-                  className="border border-gc-border px-3 py-1.5 text-[13px] text-gc-body hover:border-gc-burgundy hover:text-gc-burgundy"
+                  className="border border-gc-border-light px-2.5 py-2 text-[12px] text-gc-body hover:border-gc-burgundy hover:text-gc-burgundy"
                 >
                   {s.label}
                 </a>
@@ -208,17 +209,19 @@ export default function Header() {
             </div>
           </div>
 
-          <div className="mt-8 border-t border-gc-border-light pt-6 text-[14px] text-gc-muted">
-            <a href={SITE.phoneHref} className="block py-1 hover:text-gc-burgundy">
-              {SITE.phone}
+          {/* Direct contact info in mobile drawer */}
+          <div className="mt-8 border-t border-gc-border-light pt-6 text-[13px] text-gc-muted space-y-1.5">
+            <div className="font-normal text-gc-black text-[14px] mb-1">{PARTNER.name}</div>
+            <a href={PARTNER.phoneHref} className="block hover:text-gc-burgundy">
+              {PARTNER.phone}
             </a>
-            <a href={`mailto:${SITE.email}`} className="block py-1 hover:text-gc-burgundy">
-              {SITE.email}
+            <a href={`mailto:${PARTNER.email}`} className="block hover:text-gc-burgundy break-all">
+              {PARTNER.email}
             </a>
-            <div className="mt-3 flex items-center gap-2 uppercase tracking-[0.12em]">
+            <div className="pt-3 flex items-center gap-2 uppercase tracking-[0.12em] text-[12px]">
               <span className="font-normal text-gc-black">DE</span>
               <span className="text-gc-border">|</span>
-              <a href="https://gunnercooke.com/">EN</a>
+              <a href="https://gunnercooke.com/" className="hover:text-gc-burgundy">EN</a>
             </div>
           </div>
         </div>
@@ -229,9 +232,18 @@ export default function Header() {
   );
 }
 
-function SearchIcon() {
+function SearchIcon({ className }: { className?: string }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className || "w-3.5 h-3.5"}
+      aria-hidden="true"
+    >
       <circle cx="11" cy="11" r="7" />
       <path d="m20 20-3.5-3.5" />
     </svg>
