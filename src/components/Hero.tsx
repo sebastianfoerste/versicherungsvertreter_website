@@ -35,8 +35,8 @@ export default function Hero() {
           <div className="mb-6 text-[18px] font-light text-gc-gold">nach § 89b HGB – prüfen, beziffern, durchsetzen</div>
           <p className="gc-lead mb-8 max-w-xl">
             Mit dem Ende des Agenturvertrags verbleibt der von Ihnen aufgebaute Bestand beim Versicherer. Der
-            gesetzliche Ausgleichsanspruch soll diesen Vorteil vergüten – wenn er rechtzeitig und fundiert geltend
-            gemacht wird. Unsere Anwälte begleiten Sie von der ersten Einordnung bis zur Durchsetzung.
+            gesetzliche Ausgleichsanspruch soll diesen Vorteil vergüten, er muss jedoch rechtzeitig geltend
+            gemacht werden. Wir begleiten Sie von der Erstberatung bis zur Durchsetzung Ihres Anspruchs.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <a href="#vorab-check" className="gc-btn-primary">
