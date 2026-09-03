@@ -1,9 +1,34 @@
 export default function Hero() {
   return (
     <section className="bg-white" aria-labelledby="page-title">
-      <div className="gc-container grid grid-cols-1 items-center gap-10 py-12 md:py-16 lg:grid-cols-12 lg:gap-16 lg:py-20">
+      <div className="gc-container grid grid-cols-1 items-center gap-10 py-10 md:py-14 lg:grid-cols-12 lg:gap-16 lg:py-16">
         <div className="lg:col-span-6">
-          <div className="gc-eyebrow mb-4">Commercial · Vertrieb, Handel &amp; Logistik</div>
+          {/* Editorial inline breadcrumb trail */}
+          <nav aria-label="Breadcrumb" className="mb-4">
+            <ol className="flex flex-wrap items-center gap-x-2 text-[12px] tracking-[0.06em] text-gc-muted">
+              <li>
+                <a href="https://gunnercookede.com" className="transition-colors hover:text-gc-burgundy">
+                  Home
+                </a>
+              </li>
+              <li aria-hidden="true" className="text-gc-border">/</li>
+              <li>
+                <a href="https://gunnercookede.com/practice-area/commercial-law/" className="transition-colors hover:text-gc-burgundy">
+                  Commercial Law
+                </a>
+              </li>
+              <li aria-hidden="true" className="text-gc-border">/</li>
+              <li>
+                <span className="text-gc-muted">Vertriebsrecht</span>
+              </li>
+              <li aria-hidden="true" className="text-gc-border">/</li>
+              <li className="font-normal text-gc-black" aria-current="page">
+                § 89b HGB
+              </li>
+            </ol>
+          </nav>
+
+          <div className="gc-eyebrow mb-3">Praxisgruppe Vertrieb, Handel &amp; Logistik</div>
           <h1 id="page-title" className="mb-2">
             Ausgleichsanspruch für Versicherungsvertreter
           </h1>

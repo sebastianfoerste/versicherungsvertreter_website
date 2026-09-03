@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Header from "./components/Header";
-import { Breadcrumb, PageNav } from "./components/PageNav";
 import Hero from "./components/Hero";
 import KeyContacts from "./components/KeyContacts";
 import Overview from "./components/Overview";
@@ -30,8 +29,6 @@ export default function App() {
       <Header />
 
       <main id="main" style={{ paddingTop: "var(--gc-header-height)" }}>
-        <Breadcrumb />
-        <PageNav />
         <Hero />
         <KeyContacts />
         <Overview />

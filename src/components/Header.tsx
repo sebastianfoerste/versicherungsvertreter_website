@@ -40,12 +40,35 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [active, setActive] = useState<string>("ueberblick");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const sectionIds = MAIN_NAV.map((m) => m.id).filter(Boolean) as string[];
+    const elements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el));
+
+    if (!elements.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActive(visible[0].target.id);
+      },
+      { rootMargin: "-20% 0px -55% 0px", threshold: 0 },
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -69,20 +92,28 @@ export default function Header() {
         <Logo />
 
         {/* Right: Desktop Navigation aligned to gunnercookede.com */}
-        <div className="hidden lg:flex items-center gap-7 xl:gap-8">
+        <div className="hidden lg:flex items-center gap-6 xl:gap-7">
           <nav aria-label="Hauptnavigation">
-            <ul className="flex items-center gap-6 xl:gap-8" id="menu-main-nav">
+            <ul className="flex items-center gap-5 xl:gap-6" id="menu-main-nav">
               {MAIN_NAV.map((item) => (
                 <li key={item.label} className="relative">
                   <a
                     href={item.href}
                     className={cn(
-                      "gc-nav-link block py-1",
-                      item.label === "Get in Touch" && "text-gc-black font-normal hover:text-gc-burgundy",
+                      "gc-nav-link block py-1 text-[13.5px] xl:text-[14px]",
+                      active === item.id ? "text-gc-burgundy font-normal" : "text-[#727375]",
+                      item.label === "Get in Touch" &&
+                        "text-gc-black font-normal hover:text-gc-burgundy",
                     )}
-                    aria-current={item.current ? "page" : undefined}
+                    aria-current={active === item.id ? "location" : undefined}
                   >
                     {item.label}
+                    <span
+                      className={cn(
+                        "absolute -bottom-1.5 left-0 h-[2px] bg-gc-burgundy transition-all duration-200",
+                        active === item.id ? "w-full opacity-100" : "w-0 opacity-0",
+                      )}
+                    />
                   </a>
                 </li>
               ))}
@@ -183,31 +214,21 @@ export default function Header() {
                   <a
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="block py-3 transition-colors hover:text-gc-burgundy"
+                    className={cn(
+                      "flex items-center justify-between py-3.5 transition-colors hover:text-gc-burgundy",
+                      active === item.id && "text-gc-burgundy font-normal",
+                      item.label === "Get in Touch" && "text-gc-burgundy",
+                    )}
                   >
-                    {item.label}
+                    <span>{item.label}</span>
+                    {active === item.id && (
+                      <span className="h-1.5 w-1.5 rounded-full bg-gc-burgundy" />
+                    )}
                   </a>
                 </li>
               ))}
             </ul>
           </nav>
-
-          {/* Section jump links */}
-          <div className="mt-8 border-t border-gc-border-light pt-6">
-            <div className="gc-eyebrow mb-3 text-[11px] text-gc-soft">Auf dieser Seite</div>
-            <div className="grid grid-cols-2 gap-2">
-              {PAGE_SECTIONS.map((s) => (
-                <a
-                  key={s.id}
-                  href={`#${s.id}`}
-                  onClick={() => setOpen(false)}
-                  className="border border-gc-border-light px-2.5 py-2 text-[12px] text-gc-body hover:border-gc-burgundy hover:text-gc-burgundy"
-                >
-                  {s.label}
-                </a>
-              ))}
-            </div>
-          </div>
 
           {/* Direct contact info in mobile drawer */}
           <div className="mt-8 border-t border-gc-border-light pt-6 text-[13px] text-gc-muted space-y-1.5">

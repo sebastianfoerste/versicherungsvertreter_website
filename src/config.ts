@@ -34,14 +34,16 @@ export const PARTNER = {
   ],
 };
 
-/** Hauptnavigation gunnercookede.com (Labels wie auf der Hauptseite) */
+/** Hauptnavigation der Seite (Single-Tier direkt ansteuerbar) */
 export const MAIN_NAV = [
-  { label: "People", href: `${SITE.baseUrl}/people/` },
-  { label: "Expertise", href: "#ueberblick", current: true },
-  { label: "Our Approach", href: "#vorgehen" },
-  { label: "Rechner & Fristen", href: "#rechner" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Get in Touch", href: "#kontakt" },
+  { label: "Überblick", href: "#ueberblick", id: "ueberblick" },
+  { label: "Voraussetzungen", href: "#voraussetzungen", id: "voraussetzungen" },
+  { label: "Vorab-Check", href: "#vorab-check", id: "vorab-check" },
+  { label: "Orientierungsrechner", href: "#rechner", id: "rechner" },
+  { label: "Buchauszug", href: "#buchauszug", id: "buchauszug" },
+  { label: "Fristen", href: "#fristen", id: "fristen" },
+  { label: "FAQ", href: "#faq", id: "faq" },
+  { label: "Get in Touch", href: "#kontakt", id: "kontakt" },
 ];
 
 /** Breadcrumb dieser Unterseite */

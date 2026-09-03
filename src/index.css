@@ -42,7 +42,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: calc(var(--gc-header-height) + 56px);
+    scroll-padding-top: calc(var(--gc-header-height) + 20px);
     -webkit-text-size-adjust: 100%;
   }
 
