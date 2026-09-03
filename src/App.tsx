@@ -5,15 +5,18 @@ import Hero from "./components/Hero";
 import KeyContacts from "./components/KeyContacts";
 import Overview from "./components/Overview";
 import PreCheck, { type PreCheckResult } from "./components/PreCheck";
-import Calculator from "./components/Calculator";
+import Calculator, { type CalculatorResult } from "./components/Calculator";
 import LetterGenerator from "./components/LetterGenerator";
-import Deadlines from "./components/Deadlines";
+import Deadlines, { type DeadlineResult } from "./components/Deadlines";
 import { Approach, FAQ, RelatedExpertise, Disclaimer } from "./components/Sections";
 import ContactForm from "./components/ContactForm";
 import Footer from "./components/Footer";
+import CookieModal from "./components/CookieModal";
 
 export default function App() {
   const [precheck, setPrecheck] = useState<PreCheckResult | null>(null);
+  const [calculator, setCalculator] = useState<CalculatorResult | null>(null);
+  const [deadline, setDeadline] = useState<DeadlineResult | null>(null);
 
   return (
     <div className="min-h-screen bg-white">
@@ -33,17 +36,18 @@ export default function App() {
         <KeyContacts />
         <Overview />
         <PreCheck onComplete={setPrecheck} />
-        <Calculator />
+        <Calculator onCalculate={setCalculator} />
         <LetterGenerator />
-        <Deadlines />
+        <Deadlines onDeadlineChange={setDeadline} />
         <Approach />
         <FAQ />
-        <ContactForm precheck={precheck} />
+        <ContactForm precheck={precheck} calculator={calculator} deadline={deadline} />
         <RelatedExpertise />
         <Disclaimer />
       </main>
 
       <Footer />
+      <CookieModal />
     </div>
   );
 }

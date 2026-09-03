@@ -1,11 +1,15 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { PARTNER, SITE } from "../config";
 import type { PreCheckResult } from "./PreCheck";
+import type { CalculatorResult } from "./Calculator";
+import type { DeadlineResult } from "./Deadlines";
 import { Portrait } from "./KeyContacts";
 import { cn } from "../utils/cn";
 
 interface Props {
   precheck: PreCheckResult | null;
+  calculator?: CalculatorResult | null;
+  deadline?: DeadlineResult | null;
 }
 
 interface FormState {
@@ -18,7 +22,13 @@ interface FormState {
   website: string; // Honeypot
 }
 
-export default function ContactForm({ precheck }: Props) {
+function makeCaseId() {
+  const t = Date.now().toString(36).toUpperCase().slice(-4);
+  const r = Math.random().toString(36).toUpperCase().slice(2, 5);
+  return `GC-89B-${t}${r}`;
+}
+
+export default function ContactForm({ precheck, calculator, deadline }: Props) {
   const [form, setForm] = useState<FormState>({
     name: "",
     email: "",
@@ -30,6 +40,15 @@ export default function ContactForm({ precheck }: Props) {
   });
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [sent, setSent] = useState(false);
+  const [activeCaseId, setActiveCaseId] = useState<string>("");
+  const [copied, setCopied] = useState(false);
+
+  // Sync deadline contract end date if selected in Fristrechner
+  useEffect(() => {
+    if (deadline?.endDateStr && !form.end) {
+      setForm((f) => ({ ...f, end: deadline.endDateStr }));
+    }
+  }, [deadline?.endDateStr, form.end]);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -39,20 +58,120 @@ export default function ContactForm({ precheck }: Props) {
   const validate = () => {
     const e: Partial<Record<keyof FormState, string>> = {};
     if (form.name.trim().length < 3) e.name = "Bitte geben Sie Ihren vollständigen Namen an.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email)) e.email = "Bitte geben Sie eine gültige E-Mail-Adresse an.";
-    if (form.phone.trim().length < 6) e.phone = "Bitte geben Sie eine Telefonnummer für den Rückruf an.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email))
+      e.email = "Bitte geben Sie eine gültige E-Mail-Adresse an.";
+    if (form.phone.trim().length < 6)
+      e.phone = "Bitte geben Sie eine Telefonnummer für den Rückruf an.";
     if (!form.consent) e.consent = "Ohne Ihre Einwilligung können wir die Anfrage nicht bearbeiten.";
     return e;
   };
 
+  const buildSummary = (id: string) => {
+    const lines = [
+      `==================================================`,
+      `ANFRAGE ERSTGESPRÄCH: AUSGLEICHSANSPRUCH § 89b HGB`,
+      `Kanzlei: gunnercooke GmbH (Rechtsanwalt Sebastian Foerste)`,
+      `Vorgangs-ID: ${id}`,
+      `Datum: ${new Date().toLocaleString("de-DE")}`,
+      `==================================================`,
+      ``,
+      `KONTAKTDATEN:`,
+      `Name: ${form.name}`,
+      `E-Mail: ${form.email}`,
+      `Telefon: ${form.phone}`,
+      form.end ? `Vertragsende: ${form.end}` : null,
+      ``,
+    ];
+
+    if (precheck) {
+      lines.push(
+        `VORAB-CHECK (Vorgangs-ID ${precheck.caseId}):`,
+        `Ergebnis: ${precheck.verdict}`,
+        ...precheck.answers.map((a) => `• ${a.question}: ${a.answer}`),
+        ``,
+      );
+    }
+
+    if (calculator) {
+      lines.push(
+        `ORIENTIERUNGSRECHNER:`,
+        `Orientierungswert: ~${calculator.estimate.toLocaleString("de-DE")} EUR`,
+        `Jahresdurchschnitt: ${calculator.avg.toLocaleString("de-DE")} EUR`,
+        `Ausgleichsfähiger Anteil: ${calculator.share} %`,
+        `Sparte: ${calculator.sparteLabel}`,
+        `Gesetzliche Höchstgrenze (§ 89b Abs. 5 HGB): ${calculator.cap.toLocaleString("de-DE")} EUR`,
+        ``,
+      );
+    }
+
+    if (deadline) {
+      lines.push(
+        `FRISTRECHNER:`,
+        `Vertragsende: ${deadline.endDateStr}`,
+        `Ausschlussfrist: ${deadline.deadlineStr} (${deadline.days >= 0 ? `noch ${deadline.days} Tage` : "abgelaufen"})`,
+        ``,
+      );
+    }
+
+    if (form.message.trim()) {
+      lines.push(`IHRE SITUATION / NACHRICHT:`, form.message.trim(), ``);
+    }
+
+    lines.push(
+      `--------------------------------------------------`,
+      `Hinweis: Vertrauliche Anfrage gem. anwaltlicher Schweigepflicht.`,
+    );
+
+    return lines.filter((l) => l !== null).join("\n");
+  };
+
   const submit = (ev: FormEvent) => {
     ev.preventDefault();
-    if (form.website) return; // Bot
+    if (form.website) return; // Honeypot
     const e = validate();
     setErrors(e);
     if (Object.keys(e).length) return;
-    // Hier Anbindung an das CRM / Formular-Backend von gunnercooke.de vornehmen.
+
+    const id = precheck?.caseId || makeCaseId();
+    setActiveCaseId(id);
+
+    const summary = buildSummary(id);
+
+    // Save to localStorage
+    try {
+      const stored = JSON.parse(localStorage.getItem("gc_inquiries") || "[]");
+      stored.unshift({
+        id,
+        date: new Date().toISOString(),
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        summary,
+      });
+      localStorage.setItem("gc_inquiries", JSON.stringify(stored.slice(0, 20)));
+    } catch (err) {
+      console.error("Local storage save failed", err);
+    }
+
     setSent(true);
+  };
+
+  const getMailtoHref = () => {
+    const subject = encodeURIComponent(
+      `Anfrage Ausgleichsanspruch § 89b HGB – ${form.name} [${activeCaseId}]`,
+    );
+    const body = encodeURIComponent(buildSummary(activeCaseId));
+    return `mailto:${PARTNER.email}?subject=${subject}&body=${body}`;
+  };
+
+  const copySummaryText = async () => {
+    try {
+      await navigator.clipboard.writeText(buildSummary(activeCaseId));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      /* clipboard unavail */
+    }
   };
 
   return (
@@ -64,9 +183,9 @@ export default function ContactForm({ precheck }: Props) {
             Erstgespräch mit {PARTNER.name}
           </h2>
           <p className="mb-8 text-[16px] leading-[26px] text-gc-muted">
-            Schildern Sie uns kurz Ihre Situation. Wir melden uns zeitnah für ein unverbindliches Erstgespräch, in
-            dem wir Ihren Fall einordnen und das weitere Vorgehen abstimmen. Ihre Angaben unterliegen der
-            anwaltlichen Verschwiegenheitspflicht.
+            Schildern Sie uns kurz Ihre Situation. Wir melden uns zeitnah für ein unverbindliches
+            Erstgespräch, in dem wir Ihren Fall einordnen und das weitere Vorgehen abstimmen. Ihre
+            Angaben unterliegen der anwaltlichen Verschwiegenheitspflicht.
           </p>
 
           <div className="flex items-start gap-5 border border-gc-border-light p-5">
@@ -95,12 +214,13 @@ export default function ContactForm({ precheck }: Props) {
           <ul className="mt-8 space-y-3 text-[14px] leading-[22px] text-gc-body">
             <li className="flex gap-3">
               <span className="mt-[9px] h-[5px] w-[5px] shrink-0 bg-gc-burgundy" />
-              Hilfreich für das Erstgespräch: Agenturvertrag, Kündigung bzw. Aufhebungsvereinbarung, letzte
-              Provisionsabrechnungen.
+              Hilfreich für das Erstgespräch: Agenturvertrag, Kündigung bzw. Aufhebungsvereinbarung,
+              letzte Provisionsabrechnungen.
             </li>
             <li className="flex gap-3">
               <span className="mt-[9px] h-[5px] w-[5px] shrink-0 bg-gc-burgundy" />
-              Das Erstgespräch ist unverbindlich; eine Vergütung entsteht erst nach ausdrücklicher Vereinbarung.
+              Das Erstgespräch ist unverbindlich; eine Vergütung entsteht erst nach ausdrücklicher
+              Vereinbarung.
             </li>
           </ul>
         </div>
@@ -108,70 +228,197 @@ export default function ContactForm({ precheck }: Props) {
         <div className="lg:col-span-7">
           <div className="gc-card border-t-2 border-t-gc-burgundy">
             {sent ? (
-              <div className="py-6 text-center" role="status">
-                <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center border border-gc-burgundy text-[20px] text-gc-burgundy">
-                  ✓
-                </div>
-                <h3 className="mb-3 text-[22px]">Vielen Dank für Ihre Anfrage</h3>
-                <p className="mx-auto mb-5 max-w-md text-[15px] leading-[25px] text-gc-muted">
-                  {PARTNER.name} wird Ihre Angaben sichten und sich in Kürze persönlich mit Ihnen in Verbindung
-                  setzen.
-                </p>
-                {precheck && (
-                  <div className="inline-block border border-gc-rose-border bg-gc-rose px-4 py-2 font-mono text-[13px] text-gc-burgundy">
-                    Vorgangs-ID {precheck.caseId}
+              <div className="py-6" role="status">
+                <div className="text-center">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center border-2 border-emerald-600 bg-emerald-50 text-[24px] text-emerald-700">
+                    ✓
                   </div>
-                )}
+                  <h3 className="mb-2 text-[24px]">Vielen Dank für Ihre Anfrage</h3>
+                  <div className="mb-4 inline-block border border-gc-rose-border bg-gc-rose px-4 py-1.5 font-mono text-[13px] font-normal text-gc-burgundy">
+                    Vorgangs-ID: {activeCaseId}
+                  </div>
+                  <p className="mx-auto mb-6 max-w-md text-[15px] leading-[25px] text-gc-muted">
+                    Ihre Angaben wurden strukturiert erfasst. {PARTNER.name} wird Ihren Fall prüfen
+                    und sich zeitnah telefonisch oder per E-Mail bei Ihnen melden.
+                  </p>
+                </div>
+
+                <div className="border border-gc-border-light bg-gc-light p-5 my-6 space-y-3 text-[13px] leading-[20px] text-gc-body">
+                  <div className="font-normal text-[14px] text-gc-black border-b border-gc-border-light pb-2">
+                    Zusammenfassung Ihrer Angaben:
+                  </div>
+                  <div>
+                    <span className="text-gc-muted">Name:</span> {form.name} ·{" "}
+                    <span className="text-gc-muted">Telefon:</span> {form.phone} ·{" "}
+                    <span className="text-gc-muted">E-Mail:</span> {form.email}
+                  </div>
+                  {precheck && (
+                    <div>
+                      <span className="text-gc-muted">Vorab-Check:</span> {precheck.verdict}
+                    </div>
+                  )}
+                  {calculator && (
+                    <div>
+                      <span className="text-gc-muted">Orientierungsrechner:</span> ~
+                      {calculator.estimate.toLocaleString("de-DE")} € ({calculator.sparteLabel})
+                    </div>
+                  )}
+                  {deadline && (
+                    <div>
+                      <span className="text-gc-muted">Ausschlussfrist:</span> {deadline.deadlineStr}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <a
+                    href={getMailtoHref()}
+                    className="gc-btn-primary w-full text-center flex items-center justify-center gap-2"
+                  >
+                    <span>✉️</span> E-Mail-Entwurf direkt in Ihrem Mailprogramm öffnen
+                  </a>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <button
+                      type="button"
+                      onClick={copySummaryText}
+                      className="gc-btn-secondary gc-btn-sm flex-1 cursor-pointer"
+                    >
+                      {copied ? "✓ In Zwischenablage kopiert" : "📋 Zusammenfassung kopieren"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSent(false)}
+                      className="gc-btn-secondary gc-btn-sm flex-1 cursor-pointer"
+                    >
+                      Angaben bearbeiten
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
               <form onSubmit={submit} noValidate className="space-y-5">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <Field id="c-name" label="Name *" error={errors.name}>
-                    <input id="c-name" autoComplete="name" className={cn("gc-input", errors.name && "border-gc-burgundy")} value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Vor- und Nachname" />
+                    <input
+                      id="c-name"
+                      autoComplete="name"
+                      className={cn("gc-input", errors.name && "border-gc-burgundy")}
+                      value={form.name}
+                      onChange={(e) => set("name", e.target.value)}
+                      placeholder="Vor- und Nachname"
+                    />
                   </Field>
                   <Field id="c-end" label="Vertragsende (falls bekannt)">
-                    <input id="c-end" type="date" className="gc-input" value={form.end} onChange={(e) => set("end", e.target.value)} />
+                    <input
+                      id="c-end"
+                      type="date"
+                      className="gc-input"
+                      value={form.end}
+                      onChange={(e) => set("end", e.target.value)}
+                    />
                   </Field>
                   <Field id="c-email" label="E-Mail *" error={errors.email}>
-                    <input id="c-email" type="email" autoComplete="email" className={cn("gc-input", errors.email && "border-gc-burgundy")} value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="ihre.adresse@beispiel.de" />
+                    <input
+                      id="c-email"
+                      type="email"
+                      autoComplete="email"
+                      className={cn("gc-input", errors.email && "border-gc-burgundy")}
+                      value={form.email}
+                      onChange={(e) => set("email", e.target.value)}
+                      placeholder="ihre.adresse@beispiel.de"
+                    />
                   </Field>
                   <Field id="c-phone" label="Telefon für Rückruf *" error={errors.phone}>
-                    <input id="c-phone" type="tel" autoComplete="tel" className={cn("gc-input", errors.phone && "border-gc-burgundy")} value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+49 …" />
+                    <input
+                      id="c-phone"
+                      type="tel"
+                      autoComplete="tel"
+                      className={cn("gc-input", errors.phone && "border-gc-burgundy")}
+                      value={form.phone}
+                      onChange={(e) => set("phone", e.target.value)}
+                      placeholder="+49 …"
+                    />
                   </Field>
                 </div>
 
                 <Field id="c-msg" label="Ihre Situation in Stichworten">
-                  <textarea id="c-msg" rows={4} className="gc-input resize-y" value={form.message} onChange={(e) => set("message", e.target.value)} placeholder="z. B. Gesellschaft, Vertragsdauer, Art der Beendigung, Sparten …" />
+                  <textarea
+                    id="c-msg"
+                    rows={4}
+                    className="gc-input resize-y"
+                    value={form.message}
+                    onChange={(e) => set("message", e.target.value)}
+                    placeholder="z. B. Gesellschaft, Vertragsdauer, Art der Beendigung, Sparten …"
+                  />
                 </Field>
 
                 {/* Honeypot */}
                 <div className="hidden" aria-hidden="true">
                   <label htmlFor="c-website">Website</label>
-                  <input id="c-website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => set("website", e.target.value)} />
+                  <input
+                    id="c-website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={form.website}
+                    onChange={(e) => set("website", e.target.value)}
+                  />
                 </div>
 
-                {precheck && (
-                  <div className="flex flex-col gap-1 border border-gc-rose-border bg-gc-rose px-4 py-3 text-[13px] text-gc-burgundy sm:flex-row sm:items-center sm:justify-between">
-                    <span>
-                      Ergebnis Ihres Vorab-Checks wird übermittelt: <span className="font-normal">{precheck.verdict}</span>
-                    </span>
-                    <span className="font-mono">{precheck.caseId}</span>
+                {/* Pre-attached data badges */}
+                {(precheck || calculator || deadline) && (
+                  <div className="space-y-2 border border-gc-rose-border bg-gc-rose p-4 text-[13px] text-gc-burgundy">
+                    <div className="font-normal uppercase tracking-[0.1em] text-[11px]">
+                      Automatisch erfasste Daten für Ihr Erstgespräch:
+                    </div>
+                    {precheck && (
+                      <div className="flex items-center justify-between">
+                        <span>
+                          Vorab-Check: <strong className="font-normal">{precheck.verdict}</strong>
+                        </span>
+                        <span className="font-mono text-[12px]">{precheck.caseId}</span>
+                      </div>
+                    )}
+                    {calculator && (
+                      <div>
+                        Orientierungsrechner:{" "}
+                        <strong className="font-normal">
+                          ~{calculator.estimate.toLocaleString("de-DE")} €
+                        </strong>{" "}
+                        ({calculator.sparteLabel})
+                      </div>
+                    )}
+                    {deadline && (
+                      <div>
+                        Ausschlussfrist:{" "}
+                        <strong className="font-normal">{deadline.deadlineStr}</strong> (
+                        {deadline.days >= 0 ? `noch ${deadline.days} Tage` : "abgelaufen"})
+                      </div>
+                    )}
                   </div>
                 )}
 
                 <div>
                   <label className="flex cursor-pointer items-start gap-3 text-[13px] leading-[21px] text-gc-muted">
-                    <input type="checkbox" checked={form.consent} onChange={(e) => set("consent", e.target.checked)} className="mt-1 shrink-0 accent-gc-burgundy" aria-invalid={Boolean(errors.consent)} />
+                    <input
+                      type="checkbox"
+                      checked={form.consent}
+                      onChange={(e) => set("consent", e.target.checked)}
+                      className="mt-1 shrink-0 accent-gc-burgundy"
+                      aria-invalid={Boolean(errors.consent)}
+                    />
                     <span>
-                      Ich willige ein, dass meine Angaben zur Bearbeitung meiner Anfrage verarbeitet werden. Die
-                      Einwilligung kann ich jederzeit widerrufen. Weitere Informationen in der{" "}
+                      Ich willige ein, dass meine Angaben zur Bearbeitung meiner Anfrage verarbeitet
+                      werden. Die Einwilligung kann ich jederzeit widerrufen. Weitere Informationen
+                      in der{" "}
                       <a href={`${SITE.baseUrl}/datenschutz/`} className="gc-link">
                         Datenschutzerklärung
                       </a>
                       . *
                     </span>
                   </label>
-                  {errors.consent && <p className="mt-1 pl-7 text-[12px] text-gc-burgundy">{errors.consent}</p>}
+                  {errors.consent && (
+                    <p className="mt-1 pl-7 text-[12px] text-gc-burgundy">{errors.consent}</p>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
@@ -189,7 +436,17 @@ export default function ContactForm({ precheck }: Props) {
   );
 }
 
-function Field({ id, label, error, children }: { id: string; label: string; error?: string; children: React.ReactNode }) {
+function Field({
+  id,
+  label,
+  error,
+  children,
+}: {
+  id: string;
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <label htmlFor={id} className="gc-label">

@@ -22,12 +22,10 @@ export const PARTNER = {
   title: "Rechtsanwalt",
   practice: "Vertrieb, Handel & Logistik",
   location: "Berlin",
-  // Bitte vor Veröffentlichung verifizieren:
   email: "sebastian.foerste@gunnercooke.com",
   phone: "+49 30 220 131 000",
   phoneHref: "tel:+4930220131000",
   profileUrl: "https://www.gunnercooke.de/people/sebastian-foerste/",
-  // Portrait unter public/portrait.webp ablegen (3:4). Fällt auf Initialen zurück.
   portraitSrc: "/portrait.webp",
   initials: "SF",
   bio: [

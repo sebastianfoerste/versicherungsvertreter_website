@@ -108,9 +108,19 @@ export default function Footer() {
             <ul className="flex flex-wrap gap-x-5 gap-y-1 uppercase tracking-[0.12em]">
               {FOOTER_LINKS.legal.map((l) => (
                 <li key={l.label}>
-                  <a href={l.href} className="transition-colors hover:text-white">
-                    {l.label}
-                  </a>
+                  {l.label === "Cookie-Einstellungen" ? (
+                    <button
+                      type="button"
+                      onClick={() => window.dispatchEvent(new CustomEvent("open-cookie-modal"))}
+                      className="cursor-pointer uppercase tracking-[0.12em] transition-colors hover:text-white"
+                    >
+                      {l.label}
+                    </button>
+                  ) : (
+                    <a href={l.href} className="transition-colors hover:text-white">
+                      {l.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

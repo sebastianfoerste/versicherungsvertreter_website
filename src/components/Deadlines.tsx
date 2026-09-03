@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "../utils/cn";
 
 const RULES = [
@@ -26,7 +26,17 @@ const RULES = [
 
 const fmt = (d: Date) => d.toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" });
 
-export default function Deadlines() {
+export interface DeadlineResult {
+  endDateStr: string;
+  deadlineStr: string;
+  days: number;
+}
+
+interface DeadlinesProps {
+  onDeadlineChange?: (res: DeadlineResult | null) => void;
+}
+
+export default function Deadlines({ onDeadlineChange }: DeadlinesProps) {
   const [end, setEnd] = useState("");
 
   const info = useMemo(() => {
@@ -41,6 +51,61 @@ export default function Deadlines() {
     const limitation = new Date(endDate.getFullYear() + 3, 11, 31);
     return { endDate, deadline, days, limitation };
   }, [end]);
+
+  useEffect(() => {
+    if (info) {
+      onDeadlineChange?.({
+        endDateStr: end,
+        deadlineStr: fmt(info.deadline),
+        days: info.days,
+      });
+    } else {
+      onDeadlineChange?.(null);
+    }
+  }, [info, end, onDeadlineChange]);
+
+  const downloadIcs = () => {
+    if (!info) return;
+    const dtStamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    const endNext = new Date(info.deadline);
+    endNext.setDate(endNext.getDate() + 1);
+    const yyyymmdd = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, "");
+
+    const icsContent = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//gunnercooke//Ausgleichsanspruch Frist//DE",
+      "CALSCALE:GREGORIAN",
+      "BEGIN:VEVENT",
+      `UID:gc-deadline-${Date.now()}@gunnercooke.de`,
+      `DTSTAMP:${dtStamp}`,
+      `DTSTART;VALUE=DATE:${yyyymmdd(info.deadline)}`,
+      `DTEND;VALUE=DATE:${yyyymmdd(endNext)}`,
+      "SUMMARY:Ablauf gesetzliche Ausschlussfrist § 89b Abs. 4 S. 2 HGB",
+      "DESCRIPTION:Ausschlussfrist zur Geltendmachung des Ausgleichsanspruchs als Versicherungsvertreter nach § 89b HGB gegenüber der Versicherungsgesellschaft. Nach Ablauf dieser Frist erlischt der Anspruch gesetzlich. Rechtsberatung: gunnercooke (sebastian.foerste@gunnercooke.com).",
+      "STATUS:CONFIRMED",
+      "BEGIN:VALARM",
+      "TRIGGER:-P30D",
+      "ACTION:DISPLAY",
+      "DESCRIPTION:Erinnerung: In 30 Tagen läuft die Ausschlussfrist für Ihren Ausgleichsanspruch ab.",
+      "END:VALARM",
+      "BEGIN:VALARM",
+      "TRIGGER:-P7D",
+      "ACTION:DISPLAY",
+      "DESCRIPTION:Dringend: In 7 Tagen erlischt Ihr Ausgleichsanspruch nach § 89b HGB.",
+      "END:VALARM",
+      "END:VEVENT",
+      "END:VCALENDAR",
+    ].join("\r\n");
+
+    const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "Ausschlussfrist-Ausgleichsanspruch-89b-HGB.ics";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <section id="fristen" className="gc-section bg-gc-black text-white" aria-labelledby="deadline-title">
@@ -108,6 +173,21 @@ export default function Deadlines() {
                   </div>
                   <div className="text-[16px] text-white">{fmt(info.limitation)}</div>
                 </div>
+                <div className="flex flex-col gap-2.5 pt-3 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={downloadIcs}
+                    className="cursor-pointer inline-flex flex-1 items-center justify-center gap-2 border border-gc-gold bg-transparent px-4 py-2.5 text-[12px] uppercase tracking-[0.15em] text-gc-gold transition-colors hover:bg-gc-gold hover:text-white"
+                  >
+                    <span aria-hidden="true">📅</span> Kalender-Eintrag (.ics)
+                  </button>
+                  <a
+                    href="#kontakt"
+                    className="inline-flex flex-1 items-center justify-center gap-2 border border-white/30 bg-white/5 px-4 py-2.5 text-[12px] uppercase tracking-[0.15em] text-white transition-colors hover:bg-white hover:text-gc-black"
+                  >
+                    Frist übernehmen →
+                  </a>
+                </div>
                 <p className="text-[12px] leading-[19px] text-gc-ink-text/80">
                   Orientierungswerte ohne Gewähr. Fällt das Fristende auf ein Wochenende oder einen Feiertag, kann § 193
                   BGB anwendbar sein; maßgeblich ist stets der Zugang beim Versicherer.
@@ -121,7 +201,7 @@ export default function Deadlines() {
             )}
           </div>
 
-          <a href="#kontakt" className="gc-btn-light mt-8 w-full">
+          <a href="#kontakt" className="gc-btn-light mt-6 w-full">
             Fristwahrung anwaltlich sichern
           </a>
         </div>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const SPARTEN = [
   { id: "sach", label: "Sach / HUK", note: "Berechnung in der Praxis nach den „Grundsätzen Sach“ auf Basis der Bestandsprovision." },
@@ -16,7 +16,23 @@ function parseNum(v: string) {
   return Number.isFinite(n) && n > 0 ? n : 0;
 }
 
-export default function Calculator() {
+export interface CalculatorResult {
+  estimate: number;
+  avg: number;
+  cap: number;
+  eligible: number;
+  raw: number;
+  sparteLabel: string;
+  share: number;
+  factor: number;
+  capped: boolean;
+}
+
+interface CalculatorProps {
+  onCalculate?: (res: CalculatorResult | null) => void;
+}
+
+export default function Calculator({ onCalculate }: CalculatorProps) {
   const [years, setYears] = useState<string[]>(["", "", "", "", ""]);
   const [sparte, setSparte] = useState("sach");
   const [share, setShare] = useState(70);
@@ -31,6 +47,31 @@ export default function Calculator() {
     const estimate = Math.min(raw, cap);
     return { values, avg, cap, eligible, raw, estimate, capped: raw > cap && cap > 0 };
   }, [years, share, factor]);
+
+  useEffect(() => {
+    if (calc.avg > 0) {
+      onCalculate?.({
+        estimate: Math.round(calc.estimate),
+        avg: Math.round(calc.avg),
+        cap: Math.round(calc.cap),
+        eligible: Math.round(calc.eligible),
+        raw: Math.round(calc.raw),
+        sparteLabel: SPARTEN.find((s) => s.id === sparte)?.label || sparte,
+        share,
+        factor,
+        capped: calc.capped,
+      });
+    } else {
+      onCalculate?.(null);
+    }
+  }, [calc, sparte, share, factor, onCalculate]);
+
+  const reset = () => {
+    setYears(["", "", "", "", ""]);
+    setSparte("sach");
+    setShare(70);
+    setFactor(1.5);
+  };
 
   const setYear = (i: number, v: string) => setYears((y) => y.map((x, j) => (j === i ? v : x)));
 
@@ -179,9 +220,16 @@ export default function Calculator() {
                 „Grundsätzen zur Errechnung der Höhe des Ausgleichsanspruchs“ der jeweiligen Sparte bzw. der
                 Rechtsprechung des BGH und setzt die Auswertung des Buchauszugs nach § 87c HGB voraus.
               </p>
-              <a href="#kontakt" className="gc-btn-primary mt-6 w-full">
-                Bezifferung anwaltlich prüfen lassen
-              </a>
+              <div className="mt-6 space-y-2">
+                <a href="#kontakt" className="gc-btn-primary w-full text-center">
+                  Bezifferung anwaltlich prüfen lassen
+                </a>
+                {calc.avg > 0 && (
+                  <p className="text-center text-[12px] font-normal text-emerald-700">
+                    ✓ Orientierungswert wird für Ihr Erstgespräch vorgemerkt
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>

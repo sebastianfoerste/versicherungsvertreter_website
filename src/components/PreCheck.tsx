@@ -29,6 +29,7 @@ export default function PreCheck({ onComplete }: Props) {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [done, setDone] = useState(false);
   const [caseId, setCaseId] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const total = WIZARD_QUESTIONS.length;
   const q = WIZARD_QUESTIONS[step];
@@ -82,6 +83,26 @@ export default function PreCheck({ onComplete }: Props) {
           signal: x.opt!.signal,
         })),
       });
+    }
+  };
+
+  const copySummary = async () => {
+    const text = [
+      `Vorab-Check Ausgleichsanspruch § 89b HGB`,
+      `Vorgangs-ID: ${caseId}`,
+      `Ergebnis: ${evaluation.verdict}`,
+      `Einschätzung: ${evaluation.text}`,
+      "",
+      "Angaben im Detail:",
+      ...evaluation.list.map((x) => `• ${x.question.title}: ${x.opt!.label} (${x.opt!.note})`),
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      /* clipboard error */
     }
   };
 
@@ -217,16 +238,32 @@ export default function PreCheck({ onComplete }: Props) {
                   ))}
                 </ul>
 
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <a href="#kontakt" className="gc-btn-primary">
-                    Ergebnis im Erstgespräch besprechen
-                  </a>
+                <div className="mt-8 flex flex-col gap-3 border-t border-gc-border-light pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-wrap gap-2">
+                    <a href="#kontakt" className="gc-btn-primary">
+                      Ergebnis im Erstgespräch besprechen
+                    </a>
+                    <button
+                      type="button"
+                      onClick={copySummary}
+                      className="gc-btn-secondary gc-btn-sm"
+                    >
+                      {copied ? "✓ Kopiert" : "Ergebnis kopieren"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="gc-btn-secondary gc-btn-sm"
+                    >
+                      Drucken / PDF
+                    </button>
+                  </div>
                   <button
                     type="button"
                     onClick={reset}
-                    className="text-[13px] uppercase tracking-[0.15em] text-gc-muted hover:text-gc-black"
+                    className="text-[13px] uppercase tracking-[0.15em] text-gc-muted hover:text-gc-black cursor-pointer"
                   >
-                    Vorab-Check neu starten
+                    Neu starten
                   </button>
                 </div>
               </div>

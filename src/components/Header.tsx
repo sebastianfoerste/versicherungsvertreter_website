@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { MAIN_NAV, PAGE_SECTIONS, SITE } from "../config";
 import { cn } from "../utils/cn";
+import SearchModal from "./SearchModal";
 
 export function Logo({ className, light = false }: { className?: string; light?: boolean }) {
   return (
@@ -38,6 +39,7 @@ export function Logo({ className, light = false }: { className?: string; light?:
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -89,7 +91,8 @@ export default function Header() {
             </span>
             <button
               type="button"
-              className="flex items-center gap-1.5 transition-colors hover:text-gc-burgundy"
+              onClick={() => setSearchOpen(true)}
+              className="flex cursor-pointer items-center gap-1.5 transition-colors hover:text-gc-burgundy"
               aria-label="Suche"
             >
               <SearchIcon />
@@ -101,7 +104,7 @@ export default function Header() {
 
       {/* Main bar */}
       <div className="gc-container flex h-[66px] items-center justify-between lg:h-[86px]">
-        <Logo className="text-[26px] lg:text-[30px]" />
+        <Logo />
 
         <nav aria-label="Hauptnavigation" className="hidden items-center gap-8 lg:flex xl:gap-10">
           {MAIN_NAV.map((item) =>
@@ -122,14 +125,23 @@ export default function Header() {
           )}
         </nav>
 
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          aria-label={open ? "Menü schließen" : "Menü öffnen"}
-          className="flex h-11 w-11 items-center justify-center text-gc-black lg:hidden"
-        >
+        <div className="flex items-center gap-2 lg:hidden">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="flex h-11 w-11 items-center justify-center text-gc-black hover:text-gc-burgundy"
+            aria-label="Suche öffnen"
+          >
+            <SearchIcon />
+          </button>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            aria-label={open ? "Menü schließen" : "Menü öffnen"}
+            className="flex h-11 w-11 items-center justify-center text-gc-black"
+          >
           <span className="relative block h-4 w-6">
             <span
               className={cn(
@@ -151,6 +163,7 @@ export default function Header() {
             />
           </span>
         </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
@@ -210,6 +223,8 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 }
