@@ -37,9 +37,8 @@ export const PARTNER = {
 /** Hauptnavigation der Seite (Single-Tier direkt ansteuerbar) */
 export const MAIN_NAV = [
   { label: "Überblick", href: "#ueberblick", id: "ueberblick" },
-  { label: "Voraussetzungen", href: "#voraussetzungen", id: "voraussetzungen" },
   { label: "Vorab-Check", href: "#vorab-check", id: "vorab-check" },
-  { label: "Orientierungsrechner", href: "#rechner", id: "rechner" },
+  { label: "Rechner", href: "#rechner", id: "rechner" },
   { label: "Buchauszug", href: "#buchauszug", id: "buchauszug" },
   { label: "Fristen", href: "#fristen", id: "fristen" },
   { label: "FAQ", href: "#faq", id: "faq" },

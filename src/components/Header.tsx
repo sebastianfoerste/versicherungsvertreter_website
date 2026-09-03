@@ -87,20 +87,22 @@ export default function Header() {
           : "border-b border-[#dfdfdf] py-4 lg:py-5",
       )}
     >
-      <div className="gc-container flex items-center justify-between">
-        {/* Left: Brand logo */}
-        <Logo />
+      <div className="mx-auto w-full max-w-[1360px] px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+        {/* Left: Brand logo with guaranteed spacing */}
+        <div className="shrink-0 mr-6 lg:mr-8 xl:mr-12">
+          <Logo />
+        </div>
 
         {/* Right: Desktop Navigation aligned to gunnercookede.com */}
-        <div className="hidden lg:flex items-center gap-6 xl:gap-7">
+        <div className="hidden lg:flex items-center gap-4 xl:gap-6 2xl:gap-8 shrink-0">
           <nav aria-label="Hauptnavigation">
-            <ul className="flex items-center gap-5 xl:gap-6" id="menu-main-nav">
+            <ul className="flex items-center gap-3.5 xl:gap-5 2xl:gap-6" id="menu-main-nav">
               {MAIN_NAV.map((item) => (
-                <li key={item.label} className="relative">
+                <li key={item.label} className="relative shrink-0">
                   <a
                     href={item.href}
                     className={cn(
-                      "gc-nav-link block py-1 text-[13.5px] xl:text-[14px]",
+                      "gc-nav-link block py-1 whitespace-nowrap text-[13px] xl:text-[14px]",
                       active === item.id ? "text-gc-burgundy font-normal" : "text-[#727375]",
                       item.label === "Get in Touch" &&
                         "text-gc-black font-normal hover:text-gc-burgundy",
@@ -121,11 +123,11 @@ export default function Header() {
           </nav>
 
           {/* Inline Search box matching gunnercookede.com .search-box */}
-          <div className="search-box">
+          <div className="search-box shrink-0">
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="flex items-center justify-between w-[110px] h-[32px] px-2.5 border border-[#ccc] bg-white text-[13px] text-[#727375] transition-colors hover:border-gc-burgundy cursor-pointer focus:border-gc-burgundy focus:outline-none"
+              className="flex items-center justify-between w-[95px] xl:w-[110px] h-[32px] px-2.5 border border-[#ccc] bg-white text-[13px] text-[#727375] transition-colors hover:border-gc-burgundy cursor-pointer focus:border-gc-burgundy focus:outline-none"
               aria-label="Suche öffnen"
             >
               <span className="text-[#888]">Suche</span>
@@ -134,7 +136,7 @@ export default function Header() {
           </div>
 
           {/* Language Switcher */}
-          <div className="flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#727375] select-none">
+          <div className="flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#727375] select-none shrink-0">
             <span className="font-normal text-gc-black" aria-current="true">DE</span>
             <span className="text-gc-border">|</span>
             <a
