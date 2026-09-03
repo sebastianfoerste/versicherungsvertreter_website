@@ -1,5 +1,3 @@
-import { PARTNER, SITE } from "../config";
-
 export default function Footer() {
   return (
     <footer className="no-print bg-[#727375] text-white" aria-labelledby="footer-title">
@@ -7,7 +5,7 @@ export default function Footer() {
         Fußzeile
       </h2>
 
-      <div className="gc-container pt-12 pb-8 md:pt-14 md:pb-10">
+      <div className="gc-container pt-10 pb-8 md:pt-12 md:pb-10">
         {/* gunnercooke white logo matching gunnercookede.com .footer-site-logo */}
         <div className="footer-site-logo mb-6">
           <a
@@ -35,26 +33,6 @@ export default function Footer() {
               <path d="M236.76547,29.30322c-4.303,4.65594-7.97095,5.391-10.047,5.391-2.126,0-5.289-1.266-5.289-6.96,0-4.605,2.076-9.691,5.796-12.551a11.26147,11.26147,0,0,1,6.528-2.68195,4.07459,4.07459,0,0,1,4.251,3.947c0,4.809-8.324,7.389-12.956,8.502a15.36785,15.36785,0,0,0-.051,1.544c0,2.632.785,5.391,3.79706,5.391,2.074,0,4.706-1.393,7.16095-3.797Zm-6.883-14.12006c-1.291.734-3.746,2.809-4.606,8.199,7.237-1.822,9.414-4.099,9.414-6.225a2.41773,2.41773,0,0,0-2.582-2.581,4.13611,4.13611,0,0,0-2.226.607" />
             </svg>
           </a>
-        </div>
-
-        {/* Legal regulatory text (.footer-text) */}
-        <div className="max-w-4xl space-y-3 text-[12px] leading-[20px] text-[#e2e3e5] tracking-[0.02em]">
-          <p>
-            {SITE.legalName} ist eine in Deutschland zugelassene Rechtsanwaltsgesellschaft mit Sitz in Berlin (Amtsgericht Charlottenburg, {SITE.register}).
-            Alle Rechtsanwältinnen und Rechtsanwälte der gunnercooke GmbH sind in Deutschland oder Österreich zugelassen und Mitglieder der jeweils zuständigen Rechtsanwaltskammer.
-            gunnercooke GmbH ist Teil der internationalen gunnercooke-Gruppe.
-          </p>
-          <p className="text-[#d2d3d5]">
-            Praxisbereich Vertrieb, Handel &amp; Logistik · Ausgleichsanspruch Versicherungsvertreter (§ 89b HGB):{" "}
-            <strong className="text-white font-normal">{PARTNER.name}</strong> ({PARTNER.title}, {PARTNER.role}) · {SITE.registeredOffice} · Tel:{" "}
-            <a href={PARTNER.phoneHref} className="hover:text-white transition-colors underline decoration-white/40">
-              {PARTNER.phone}
-            </a>{" "}
-            · E-Mail:{" "}
-            <a href={`mailto:${PARTNER.email}`} className="hover:text-white transition-colors underline decoration-white/40">
-              {PARTNER.email}
-            </a>
-          </p>
         </div>
 
         {/* Horizontal rule matching gunnercookede.com .ft-hr */}
