@@ -63,7 +63,7 @@ export default function Hero() {
               />
             </picture>
             <figcaption className="absolute right-0 bottom-0 bg-gc-burgundy px-5 py-3 text-[12px] uppercase tracking-[0.18em] text-white">
-              Handelsvertreterrecht
+              Versicherungsvertreterrecht
             </figcaption>
           </figure>
         </div>
