@@ -37,7 +37,7 @@ interface DeadlinesProps {
   onDeadlineChange?: (res: DeadlineResult | null) => void;
 }
 
-export default function Deadlines({ onDeadlineChange }: DeadlinesProps) {
+export function DeadlineCalculator({ onDeadlineChange }: DeadlinesProps) {
   const [end, setEnd] = useState("");
 
   const info = useMemo(() => {
@@ -107,11 +107,105 @@ export default function Deadlines({ onDeadlineChange }: DeadlinesProps) {
   };
 
   return (
-    <section id="fristen" className="gc-section bg-gc-black text-white" aria-labelledby="deadline-title">
-      <div className="gc-container grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-start">
-        <div className="lg:col-span-7">
+    <section id="fristen" className="gc-section border-b border-gc-border-light bg-gc-light" aria-labelledby="calc-deadline-title">
+      <div className="gc-container">
+        <div className="mx-auto max-w-2xl border border-gc-border-light bg-white p-6 md:p-8 shadow-xs">
+          <div className="gc-eyebrow mb-2">Fristrechner § 89b Abs. 4 Satz 2 HGB</div>
+          <h2 id="calc-deadline-title" className="mb-2 text-[22px] md:text-[24px] font-normal text-gc-black">
+            Bis wann muss ich den Anspruch geltend machen?
+          </h2>
+          <p className="mb-6 text-[14px] leading-[22px] text-gc-muted">
+            Die gesetzliche Ausschlussfrist beträgt genau ein Jahr ab Vertragsbeendigung. Ermitteln Sie hier Ihren
+            Stichtag und sichern Sie Ihren Termin im Kalender.
+          </p>
+
+          <label htmlFor="end-date" className="gc-label">
+            Datum der Vertragsbeendigung
+          </label>
+          <input
+            id="end-date"
+            type="date"
+            value={end}
+            onChange={(e) => setEnd(e.target.value)}
+            className="gc-input mb-4"
+          />
+
+          <div className="space-y-4" aria-live="polite">
+            {info ? (
+              <>
+                <div className="border-l-2 border-gc-burgundy bg-gc-light p-4">
+                  <div className="text-[12px] uppercase tracking-[0.15em] text-gc-muted">Ausschlussfrist endet</div>
+                  <div className="text-[22px] font-light text-gc-black">{fmt(info.deadline)}</div>
+                  <div
+                    className={cn(
+                      "mt-1 text-[14px]",
+                      info.days < 0 ? "text-gc-burgundy font-normal" : info.days <= 60 ? "text-gc-gold-text font-normal" : "text-emerald-700",
+                    )}
+                  >
+                    {info.days < 0
+                      ? `Frist seit ${Math.abs(info.days)} Tagen abgelaufen – bitte umgehend prüfen lassen, ob Ausnahmen greifen.`
+                      : info.days === 0
+                        ? "Die Frist endet heute."
+                        : info.days === 1
+                          ? "Noch 1 Tag – zeitnahe Geltendmachung dringend empfohlen."
+                          : `Noch ${info.days} Tage${info.days <= 60 ? " – zeitnahe Geltendmachung dringend empfohlen." : "."}`}
+                  </div>
+                  {isWeekend(info.deadline) && (
+                    <div className="mt-2 text-[13px] leading-[20px] text-gc-gold-text border-t border-gc-border-light pt-1.5">
+                      Der letzte Tag fällt auf ein Wochenende. Verlassen Sie sich nicht auf eine Verlängerung nach § 193 BGB, sondern machen Sie den Anspruch vorher geltend.
+                    </div>
+                  )}
+                </div>
+                <div className="border-l-2 border-gc-border-light bg-gc-light p-4">
+                  <div className="text-[12px] uppercase tracking-[0.15em] text-gc-muted">
+                    Regelmäßige Verjährung (nach Geltendmachung)
+                  </div>
+                  <div className="text-[16px] text-gc-black">{fmt(info.limitation)}</div>
+                </div>
+                <div className="flex flex-col gap-2.5 pt-2 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={downloadIcs}
+                    className="cursor-pointer inline-flex flex-1 items-center justify-center gap-2 border border-gc-burgundy bg-white px-4 py-2.5 text-[12px] uppercase tracking-[0.15em] text-gc-burgundy transition-colors hover:bg-gc-burgundy hover:text-white"
+                  >
+                    <span aria-hidden="true">📅</span> Kalender-Eintrag (.ics)
+                  </button>
+                  <a
+                    href="#kontakt"
+                    className="inline-flex flex-1 items-center justify-center gap-2 border border-gc-border bg-white px-4 py-2.5 text-[12px] uppercase tracking-[0.15em] text-gc-body transition-colors hover:bg-gc-light hover:text-gc-black"
+                  >
+                    Frist übernehmen →
+                  </a>
+                </div>
+                <p className="text-[12px] leading-[19px] text-gc-soft">
+                  Orientierungswerte ohne Gewähr. Fällt das Fristende auf ein Wochenende oder einen Feiertag, kann § 193
+                  BGB anwendbar sein; maßgeblich ist stets der Zugang beim Versicherer.
+                </p>
+              </>
+            ) : (
+              <p className="text-[14px] leading-[22px] text-gc-soft">
+                Geben Sie das Datum ein, zu dem Ihr Agenturvertrag rechtlich beendet wurde – in der Regel der letzte Tag
+                der Kündigungsfrist oder das im Aufhebungsvertrag genannte Datum.
+              </p>
+            )}
+          </div>
+
+          <a href="#kontakt" className="gc-btn-primary mt-6 block text-center">
+            Fristwahrung anwaltlich sichern
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function DeadlinesExplainer() {
+  return (
+    <section id="ausschlussfrist" className="gc-section bg-gc-black text-white" aria-labelledby="deadline-explainer-title">
+      <div className="gc-container">
+        <div className="max-w-3xl">
           <div className="gc-eyebrow mb-3 text-gc-gold">Gesetzliche Ausschlussfrist</div>
-          <h2 id="deadline-title" className="mb-6 text-white">
+          <h2 id="deadline-explainer-title" className="mb-6 text-white">
             Ein Jahr nach Vertragsende – § 89b Abs. 4 Satz 2 HGB
           </h2>
           <p className="mb-8 text-[16px] leading-[26px] text-gc-ink-text">
@@ -132,86 +226,9 @@ export default function Deadlines({ onDeadlineChange }: DeadlinesProps) {
             ))}
           </ul>
         </div>
-
-        <div className="border border-gc-ink-border bg-gc-ink p-6 md:p-8 lg:col-span-5">
-          <div className="gc-eyebrow mb-2 text-gc-gold">Fristrechner</div>
-          <h3 className="mb-5 text-[20px] text-white">Bis wann muss ich den Anspruch geltend machen?</h3>
-          <label htmlFor="end-date" className="gc-label text-gc-ink-text">
-            Datum der Vertragsbeendigung
-          </label>
-          <input
-            id="end-date"
-            type="date"
-            value={end}
-            onChange={(e) => setEnd(e.target.value)}
-            className="gc-input border-gc-ink-border bg-gc-black text-white [color-scheme:dark] focus:border-gc-gold"
-          />
-
-          <div className="mt-6 space-y-4" aria-live="polite">
-            {info ? (
-              <>
-                <div className="border-l-2 border-gc-burgundy pl-4">
-                  <div className="text-[12px] uppercase tracking-[0.15em] text-gc-ink-text">Ausschlussfrist endet</div>
-                  <div className="text-[22px] font-light text-white">{fmt(info.deadline)}</div>
-                  <div
-                    className={cn(
-                      "mt-1 text-[14px]",
-                      info.days < 0 ? "text-gc-burgundy" : info.days <= 60 ? "text-gc-gold" : "text-emerald-400",
-                    )}
-                  >
-                    {info.days < 0
-                      ? `Frist seit ${Math.abs(info.days)} Tagen abgelaufen – bitte umgehend prüfen lassen, ob Ausnahmen greifen.`
-                      : info.days === 0
-                        ? "Die Frist endet heute."
-                        : info.days === 1
-                          ? "Noch 1 Tag – zeitnahe Geltendmachung dringend empfohlen."
-                          : `Noch ${info.days} Tage${info.days <= 60 ? " – zeitnahe Geltendmachung dringend empfohlen." : "."}`}
-                  </div>
-                  {isWeekend(info.deadline) && (
-                    <div className="mt-2 text-[13px] leading-[20px] text-gc-gold border-t border-gc-ink-border pt-1.5">
-                      Der letzte Tag fällt auf ein Wochenende. Verlassen Sie sich nicht auf eine Verlängerung nach § 193 BGB, sondern machen Sie den Anspruch vorher geltend.
-                    </div>
-                  )}
-                </div>
-                <div className="border-l-2 border-gc-ink-border pl-4">
-                  <div className="text-[12px] uppercase tracking-[0.15em] text-gc-ink-text">
-                    Regelmäßige Verjährung (nach Geltendmachung)
-                  </div>
-                  <div className="text-[16px] text-white">{fmt(info.limitation)}</div>
-                </div>
-                <div className="flex flex-col gap-2.5 pt-3 sm:flex-row">
-                  <button
-                    type="button"
-                    onClick={downloadIcs}
-                    className="cursor-pointer inline-flex flex-1 items-center justify-center gap-2 border border-gc-gold bg-transparent px-4 py-2.5 text-[12px] uppercase tracking-[0.15em] text-gc-gold transition-colors hover:bg-gc-gold hover:text-white"
-                  >
-                    <span aria-hidden="true">📅</span> Kalender-Eintrag (.ics)
-                  </button>
-                  <a
-                    href="#kontakt"
-                    className="inline-flex flex-1 items-center justify-center gap-2 border border-white/30 bg-white/5 px-4 py-2.5 text-[12px] uppercase tracking-[0.15em] text-white transition-colors hover:bg-white hover:text-gc-black"
-                  >
-                    Frist übernehmen →
-                  </a>
-                </div>
-                <p className="text-[12px] leading-[19px] text-gc-ink-text/80">
-                  Orientierungswerte ohne Gewähr. Fällt das Fristende auf ein Wochenende oder einen Feiertag, kann § 193
-                  BGB anwendbar sein; maßgeblich ist stets der Zugang beim Versicherer.
-                </p>
-              </>
-            ) : (
-              <p className="text-[14px] leading-[22px] text-gc-ink-text">
-                Geben Sie das Datum ein, zu dem Ihr Agenturvertrag rechtlich beendet wurde – in der Regel der letzte Tag
-                der Kündigungsfrist oder das im Aufhebungsvertrag genannte Datum.
-              </p>
-            )}
-          </div>
-
-          <a href="#kontakt" className="gc-btn-light mt-6 w-full">
-            Fristwahrung anwaltlich sichern
-          </a>
-        </div>
       </div>
     </section>
   );
 }
+
+export default DeadlineCalculator;
