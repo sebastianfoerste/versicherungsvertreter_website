@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MAIN_NAV, PAGE_SECTIONS, PARTNER, SITE } from "../config";
+import { MAIN_NAV, PARTNER } from "../config";
 import { cn } from "../utils/cn";
 import SearchModal from "./SearchModal";
 

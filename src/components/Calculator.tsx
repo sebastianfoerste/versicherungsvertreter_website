@@ -66,12 +66,6 @@ export default function Calculator({ onCalculate }: CalculatorProps) {
     }
   }, [calc, sparte, share, factor, onCalculate]);
 
-  const reset = () => {
-    setYears(["", "", "", "", ""]);
-    setSparte("sach");
-    setShare(70);
-    setFactor(1.5);
-  };
 
   const setYear = (i: number, v: string) => setYears((y) => y.map((x, j) => (j === i ? v : x)));
 

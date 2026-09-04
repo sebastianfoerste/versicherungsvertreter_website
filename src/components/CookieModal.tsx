@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { SITE } from "../config";
-import { cn } from "../utils/cn";
 
 export default function CookieModal() {
   const [open, setOpen] = useState(false);
