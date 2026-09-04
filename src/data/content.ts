@@ -29,11 +29,13 @@ export const WIZARD_QUESTIONS: WizardQuestion[] = [
     title: "Wer hat das Vertragsverhältnis beendet?",
     help: "§ 89b Abs. 3 HGB schließt den Anspruch bei einer Eigenkündigung des Vertreters grundsätzlich aus – mit wichtigen Ausnahmen.",
     options: [
-      { label: "Der Versicherer / die Gesellschaft", signal: "positive", note: "Die ordentliche Kündigung durch den Unternehmer lässt den Anspruch unberührt." },
+      { label: "Der Versicherer – ordentliche Kündigung oder Zeitablauf", signal: "positive", note: "Die ordentliche Kündigung durch den Unternehmer lässt den Anspruch unberührt." },
+      { label: "Der Versicherer – fristlose Kündigung wegen eines mir vorgeworfenen Verhaltens", signal: "negative", note: "Eine wirksame fristlose Kündigung wegen schuldhaften Verhaltens schließt den Anspruch aus (§ 89b Abs. 3 Nr. 2 HGB). Ob der Kündigungsgrund trägt, ist häufig streitig und sollte geprüft werden." },
       { label: "Ich selbst – aus Anlass durch den Versicherer (z. B. Provisionskürzung, Gebietsentzug)", signal: "neutral", note: "Ein vom Unternehmer gesetzter begründeter Anlass erhält den Anspruch (§ 89b Abs. 3 Nr. 1 HGB). Die Dokumentation des Anlasses ist entscheidend." },
       { label: "Ich selbst – aus Alters- oder Gesundheitsgründen", signal: "positive", note: "Alter oder Krankheit, die eine Fortsetzung unzumutbar machen, erhalten den Anspruch (§ 89b Abs. 3 Nr. 1 HGB)." },
       { label: "Ich selbst – ohne besonderen Anlass", signal: "negative", note: "Hier ist der Anspruch in der Regel ausgeschlossen. Eine Einzelfallprüfung kann sich dennoch lohnen." },
       { label: "Einvernehmlich (Aufhebungsvertrag)", signal: "neutral", note: "Maßgeblich ist, von wem die Initiative ausging und was zur Ausgleichsfrage vereinbart wurde." },
+      { label: "Ein Nachfolger hat meine Agentur auf Grundlage einer Vereinbarung mit mir übernommen", signal: "negative", note: "Tritt ein Dritter aufgrund einer Vereinbarung mit Ihnen in das Vertragsverhältnis ein, entfällt der Anspruch gegen den Versicherer (§ 89b Abs. 3 Nr. 3 HGB). Maßgeblich ist dann die Vereinbarung mit dem Nachfolger." },
     ],
   },
   {

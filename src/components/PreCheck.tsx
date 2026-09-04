@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { WIZARD_QUESTIONS, type Signal } from "../data/content";
+import { evaluatePreCheck } from "../utils/precheck";
 import { cn } from "../utils/cn";
 
 export interface PreCheckResult {
@@ -36,31 +37,7 @@ export default function PreCheck({ onComplete }: Props) {
   const selected = answers[q?.id];
 
   const evaluation = useMemo(() => {
-    const list = WIZARD_QUESTIONS.map((question) => {
-      const idx = answers[question.id];
-      const opt = idx !== undefined ? question.options[idx] : undefined;
-      return { question, opt };
-    }).filter((x) => x.opt);
-
-    const negatives = list.filter((x) => x.opt!.signal === "negative").length;
-    const neutrals = list.filter((x) => x.opt!.signal === "neutral").length;
-
-    let verdict = "Gute Ausgangslage";
-    let tone: Signal = "positive";
-    let text =
-      "Nach Ihren Angaben sprechen die wesentlichen Voraussetzungen für einen Ausgleichsanspruch. Entscheidend sind nun Fristwahrung und eine belastbare Datengrundlage.";
-    if (negatives > 0) {
-      verdict = "Anspruch voraussichtlich eingeschränkt";
-      tone = "negative";
-      text =
-        "Mindestens ein Umstand spricht gegen den Anspruch. In der Praxis lohnt sich dennoch eine Einzelfallprüfung, da Ausnahmen (z. B. begründeter Anlass, tatsächliche Hauptberuflichkeit) häufig übersehen werden.";
-    } else if (neutrals >= 2) {
-      verdict = "Anwaltliche Prüfung empfohlen";
-      tone = "neutral";
-      text =
-        "Mehrere Punkte bedürfen einer näheren rechtlichen Bewertung. Bitte halten Sie Agenturvertrag, Kündigungsschreiben und etwaige Aufhebungsvereinbarungen für das Erstgespräch bereit.";
-    }
-    return { list, verdict, tone, text };
+    return evaluatePreCheck(answers);
   }, [answers]);
 
   const choose = (idx: number) => {
