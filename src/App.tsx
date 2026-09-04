@@ -10,7 +10,6 @@ import Deadlines, { type DeadlineResult } from "./components/Deadlines";
 import { Approach, FAQ, RelatedExpertise, Disclaimer } from "./components/Sections";
 import ContactForm from "./components/ContactForm";
 import Footer from "./components/Footer";
-import CookieModal from "./components/CookieModal";
 
 export default function App() {
   const [precheck, setPrecheck] = useState<PreCheckResult | null>(null);
@@ -44,7 +43,6 @@ export default function App() {
       </main>
 
       <Footer />
-      <CookieModal />
     </div>
   );
 }

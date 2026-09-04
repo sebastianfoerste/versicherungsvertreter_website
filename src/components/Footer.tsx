@@ -1,3 +1,5 @@
+import { SITE } from "../config";
+
 export default function Footer() {
   return (
     <footer className="no-print bg-[#727375] text-white" aria-labelledby="footer-title">
@@ -42,8 +44,11 @@ export default function Footer() {
         <div className="footer-legals flex flex-col gap-4 text-[12px] text-white md:flex-row md:items-center md:justify-between tracking-[0.02em]">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <span>© {new Date().getFullYear()} gunnercooke</span>
+            <span className="text-[#e2e3e5]">
+              Diese Seite setzt keine Cookies und verwendet keine Tracking-Dienste. Ihre Eingaben in Rechner und Musterschreiben werden ausschließlich lokal in Ihrem Browser gespeichert.
+            </span>
             <a
-              href="https://gunnercookede.com/privacy-policy/"
+              href={`${SITE.baseUrl}/privacy-policy/`}
               target="_blank"
               rel="noopener noreferrer"
               className="transition-colors hover:text-[#aa1d47]"
@@ -51,22 +56,15 @@ export default function Footer() {
               Datenschutzerklärung
             </a>
             <a
-              href="https://gunnercookede.com/rechtlicher-hinweis/"
+              href={`${SITE.baseUrl}/rechtlicher-hinweis/`}
               target="_blank"
               rel="noopener noreferrer"
               className="transition-colors hover:text-[#aa1d47]"
             >
               Impressum
             </a>
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent("open-cookie-modal"))}
-              className="cursor-pointer transition-colors hover:text-[#aa1d47]"
-            >
-              Cookie-Einstellungen
-            </button>
             <a
-              href="https://gunnercookede.com/page-sitemap.xml"
+              href={`${SITE.baseUrl}/page-sitemap.xml`}
               target="_blank"
               rel="noopener noreferrer"
               className="transition-colors hover:text-[#aa1d47]"
