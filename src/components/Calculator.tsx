@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { computeOrientierung } from "../utils/calculator";
 
 const SPARTEN = [
   { id: "sach", label: "Sach / HUK", note: "Berechnung in der Praxis nach den „Grundsätzen Sach“ auf Basis der Bestandsprovision." },
@@ -11,13 +12,10 @@ const SPARTEN = [
 const eur = (n: number) =>
   n.toLocaleString("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 
-function parseNum(v: string) {
-  const n = Number(v.replace(/\./g, "").replace(",", "."));
-  return Number.isFinite(n) && n > 0 ? n : 0;
-}
-
 export interface CalculatorResult {
   estimate: number;
+  lowerEstimate: number;
+  upperEstimate: number;
   avg: number;
   cap: number;
   eligible: number;
@@ -39,23 +37,19 @@ export default function Calculator({ onCalculate }: CalculatorProps) {
   const [factor, setFactor] = useState(1.5);
 
   const calc = useMemo(() => {
-    const values = years.map(parseNum).filter((v) => v > 0);
-    const avg = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
-    const cap = avg * 3;
-    const eligible = avg * (share / 100);
-    const raw = eligible * factor;
-    const estimate = Math.min(raw, cap);
-    return { values, avg, cap, eligible, raw, estimate, capped: raw > cap && cap > 0 };
+    return computeOrientierung({ years, share, factor });
   }, [years, share, factor]);
 
   useEffect(() => {
-    if (calc.avg > 0) {
+    if (calc.count > 0 && calc.avg > 0) {
       onCalculate?.({
-        estimate: Math.round(calc.estimate),
+        estimate: Math.round(calc.upperEstimate),
+        lowerEstimate: Math.round(calc.lowerEstimate),
+        upperEstimate: Math.round(calc.upperEstimate),
         avg: Math.round(calc.avg),
         cap: Math.round(calc.cap),
-        eligible: Math.round(calc.eligible),
-        raw: Math.round(calc.raw),
+        eligible: Math.round(calc.avg * (share / 100)),
+        raw: Math.round(calc.rawUpper),
         sparteLabel: SPARTEN.find((s) => s.id === sparte)?.label || sparte,
         share,
         factor,
@@ -107,8 +101,7 @@ export default function Calculator({ onCalculate }: CalculatorProps) {
                 ))}
               </div>
               <p className="mt-2 text-[12px] leading-[19px] text-gc-soft">
-                Bei kürzerer Vertragsdauer genügen die vorhandenen Jahre – der Durchschnitt wird nur über ausgefüllte
-                Felder gebildet (§ 89b Abs. 2 Satz 2 HGB).
+                Ein Jahr ohne Provision tragen Sie mit 0 ein. Leere Felder bleiben unberücksichtigt.
               </p>
             </fieldset>
 
@@ -178,28 +171,41 @@ export default function Calculator({ onCalculate }: CalculatorProps) {
               <div className="gc-eyebrow mb-5">Ergebnis</div>
               <dl className="space-y-4 text-[14px]">
                 <div className="flex items-baseline justify-between gap-4">
-                  <dt className="text-gc-muted">Jahresdurchschnittsprovision ({calc.values.length || 0} Jahre)</dt>
-                  <dd className="font-normal text-gc-black tabular-nums">{eur(calc.avg)}</dd>
+                  <dt className="text-gc-muted">
+                    Jahresdurchschnitt ({calc.count} {calc.count === 1 ? "Jahr" : "Jahre"})
+                  </dt>
+                  <dd className="font-normal text-gc-black tabular-nums">
+                    {calc.count > 0 ? eur(calc.avg) : "–"}
+                  </dd>
                 </div>
                 <div className="flex items-baseline justify-between gap-4">
                   <dt className="text-gc-muted">Davon ausgleichsfähig ({share} %)</dt>
-                  <dd className="font-normal text-gc-black tabular-nums">{eur(calc.eligible)}</dd>
-                </div>
-                <div className="flex items-baseline justify-between gap-4">
-                  <dt className="text-gc-muted">Rohausgleich (× {factor.toFixed(1)})</dt>
-                  <dd className="font-normal text-gc-black tabular-nums">{eur(calc.raw)}</dd>
+                  <dd className="font-normal text-gc-black tabular-nums">
+                    {calc.count > 0 ? eur(calc.avg * (share / 100)) : "–"}
+                  </dd>
                 </div>
                 <div className="flex items-baseline justify-between gap-4 border-t border-gc-border-light pt-4">
-                  <dt className="text-gc-muted">
-                    Höchstgrenze (3 Jahresprovisionen)
-                    <span className="block text-[11px] uppercase tracking-[0.12em] text-gc-soft">§ 89b Abs. 5 S. 2 HGB</span>
+                  <dt className="text-[15px] font-normal text-gc-black">
+                    Gesetzliche Höchstgrenze
+                    <span className="block text-[11px] uppercase tracking-[0.12em] text-gc-soft">
+                      § 89b Abs. 5 Satz 2 HGB (max. 3 Jahresprovisionen)
+                    </span>
                   </dt>
-                  <dd className="font-normal text-gc-burgundy tabular-nums">{eur(calc.cap)}</dd>
+                  <dd className="text-[26px] font-light text-gc-burgundy tabular-nums">
+                    {calc.count > 0 ? eur(calc.cap) : "–"}
+                  </dd>
                 </div>
                 <div className="flex items-baseline justify-between gap-4 border-t border-gc-border pt-4">
-                  <dt className="text-[15px] font-normal text-gc-black">Orientierungswert</dt>
-                  <dd className="text-[26px] font-light text-gc-burgundy tabular-nums">
-                    {calc.avg ? `~ ${eur(calc.estimate)}` : "–"}
+                  <dt className="text-[15px] font-normal text-gc-black">
+                    Orientierungswert (Spanne)
+                    <span className="block text-[11px] text-gc-soft">
+                      Faktor 1,0 bis {factor.toFixed(1)}
+                    </span>
+                  </dt>
+                  <dd className="text-[18px] font-normal text-gc-burgundy tabular-nums">
+                    {calc.count > 0
+                      ? `${eur(calc.lowerEstimate)} – ${eur(calc.upperEstimate)}`
+                      : "–"}
                   </dd>
                 </div>
               </dl>

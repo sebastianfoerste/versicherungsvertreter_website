@@ -96,9 +96,14 @@ export default function ContactForm({ precheck, calculator, deadline }: Props) {
     }
 
     if (calculator) {
+      const estimateText =
+        calculator.lowerEstimate !== undefined && calculator.upperEstimate !== undefined
+          ? `${calculator.lowerEstimate.toLocaleString("de-DE")} – ${calculator.upperEstimate.toLocaleString("de-DE")} EUR`
+          : `~${calculator.estimate.toLocaleString("de-DE")} EUR`;
+
       lines.push(
         `ORIENTIERUNGSRECHNER:`,
-        `Orientierungswert: ~${calculator.estimate.toLocaleString("de-DE")} EUR`,
+        `Orientierungswert-Spanne: ${estimateText}`,
         `Jahresdurchschnitt: ${calculator.avg.toLocaleString("de-DE")} EUR`,
         `Ausgleichsfähiger Anteil: ${calculator.share} %`,
         `Sparte: ${calculator.sparteLabel}`,
