@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "../utils/cn";
+import { computeAusschlussfrist, computeVerjaehrung, formatIcsDate, isWeekend } from "../utils/deadlines";
 
 const RULES = [
   {
@@ -43,12 +44,11 @@ export default function Deadlines({ onDeadlineChange }: DeadlinesProps) {
     if (!end) return null;
     const endDate = new Date(end + "T00:00:00");
     if (Number.isNaN(endDate.getTime())) return null;
-    const deadline = new Date(endDate);
-    deadline.setFullYear(deadline.getFullYear() + 1);
+    const deadline = computeAusschlussfrist(endDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const days = Math.ceil((deadline.getTime() - today.getTime()) / 86400000);
-    const limitation = new Date(endDate.getFullYear() + 3, 11, 31);
+    const limitation = computeVerjaehrung(endDate);
     return { endDate, deadline, days, limitation };
   }, [end]);
 
@@ -69,7 +69,6 @@ export default function Deadlines({ onDeadlineChange }: DeadlinesProps) {
     const dtStamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
     const endNext = new Date(info.deadline);
     endNext.setDate(endNext.getDate() + 1);
-    const yyyymmdd = (d: Date) => d.toISOString().slice(0, 10).replace(/-/g, "");
 
     const icsContent = [
       "BEGIN:VCALENDAR",
@@ -79,8 +78,8 @@ export default function Deadlines({ onDeadlineChange }: DeadlinesProps) {
       "BEGIN:VEVENT",
       `UID:gc-deadline-${Date.now()}@gunnercooke.de`,
       `DTSTAMP:${dtStamp}`,
-      `DTSTART;VALUE=DATE:${yyyymmdd(info.deadline)}`,
-      `DTEND;VALUE=DATE:${yyyymmdd(endNext)}`,
+      `DTSTART;VALUE=DATE:${formatIcsDate(info.deadline)}`,
+      `DTEND;VALUE=DATE:${formatIcsDate(endNext)}`,
       "SUMMARY:Ablauf gesetzliche Ausschlussfrist § 89b Abs. 4 S. 2 HGB",
       "DESCRIPTION:Ausschlussfrist zur Geltendmachung des Ausgleichsanspruchs als Versicherungsvertreter nach § 89b HGB gegenüber der Versicherungsgesellschaft. Nach Ablauf dieser Frist erlischt der Anspruch gesetzlich. Rechtsberatung: gunnercooke (sebastian.foerste@gunnercooke.com).",
       "STATUS:CONFIRMED",
@@ -164,8 +163,15 @@ export default function Deadlines({ onDeadlineChange }: DeadlinesProps) {
                       ? `Frist seit ${Math.abs(info.days)} Tagen abgelaufen – bitte umgehend prüfen lassen, ob Ausnahmen greifen.`
                       : info.days === 0
                         ? "Die Frist endet heute."
-                        : `Noch ${info.days} Tage${info.days <= 60 ? " – zeitnahe Geltendmachung dringend empfohlen." : "."}`}
+                        : info.days === 1
+                          ? "Noch 1 Tag – zeitnahe Geltendmachung dringend empfohlen."
+                          : `Noch ${info.days} Tage${info.days <= 60 ? " – zeitnahe Geltendmachung dringend empfohlen." : "."}`}
                   </div>
+                  {isWeekend(info.deadline) && (
+                    <div className="mt-2 text-[13px] leading-[20px] text-gc-gold border-t border-gc-ink-border pt-1.5">
+                      Der letzte Tag fällt auf ein Wochenende. Verlassen Sie sich nicht auf eine Verlängerung nach § 193 BGB, sondern machen Sie den Anspruch vorher geltend.
+                    </div>
+                  )}
                 </div>
                 <div className="border-l-2 border-gc-ink-border pl-4">
                   <div className="text-[12px] uppercase tracking-[0.15em] text-gc-ink-text">
