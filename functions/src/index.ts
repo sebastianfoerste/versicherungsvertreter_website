@@ -39,7 +39,7 @@ export const submitInquiry = onRequest(
     maxInstances: 3,
     timeoutSeconds: 30,
     memory: "256MiB",
-    cors: ["https://versicherungsvertreter.web.app", "http://localhost:5173", "http://localhost:4173"],
+    cors: ["https://versicherungsvertreter.web.app"],
     secrets: [SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, INQUIRY_TO],
   },
   async (req, res) => {
