@@ -50,8 +50,9 @@ export function evaluatePreCheck(answers: Record<string, number>): PreCheckEvalu
       subText =
         "Mehrere Punkte bedürfen einer näheren rechtlichen Bewertung. Bitte halten Sie Agenturvertrag, Kündigungsschreiben und etwaige Aufhebungsvereinbarungen für das Erstgespräch bereit.";
     } else {
-      subText =
-        "Nach Ihren Angaben sprechen die wesentlichen Voraussetzungen für einen Ausgleichsanspruch. Entscheidend sind nun Fristwahrung und eine belastbare Datengrundlage.";
+      // The Frist has not started while notice is still running, so the
+      // "Fristwahrung" sentence from verdict 5 is omitted here.
+      subText = "Nach Ihren Angaben sprechen die wesentlichen Voraussetzungen für einen Ausgleichsanspruch.";
     }
 
     return {

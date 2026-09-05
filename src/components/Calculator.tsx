@@ -101,6 +101,10 @@ export default function Calculator({ onCalculate }: CalculatorProps) {
                 ))}
               </div>
               <p className="mt-2 text-[12px] leading-[19px] text-gc-soft">
+                Bei kürzerer Vertragsdauer genügen die vorhandenen Jahre – der Durchschnitt wird nur über ausgefüllte
+                Felder gebildet (§ 89b Abs. 2 Satz 2 HGB).
+              </p>
+              <p className="mt-1 text-[12px] leading-[19px] text-gc-soft">
                 Ein Jahr ohne Provision tragen Sie mit 0 ein. Leere Felder bleiben unberücksichtigt.
               </p>
             </fieldset>
@@ -186,10 +190,8 @@ export default function Calculator({ onCalculate }: CalculatorProps) {
                 </div>
                 <div className="flex items-baseline justify-between gap-4 border-t border-gc-border-light pt-4">
                   <dt className="text-[15px] font-normal text-gc-black">
-                    Gesetzliche Höchstgrenze
-                    <span className="block text-[11px] uppercase tracking-[0.12em] text-gc-soft">
-                      § 89b Abs. 5 Satz 2 HGB (max. 3 Jahresprovisionen)
-                    </span>
+                    Höchstgrenze (3 Jahresprovisionen)
+                    <span className="block text-[11px] uppercase tracking-[0.12em] text-gc-soft">§ 89b Abs. 5 S. 2 HGB</span>
                   </dt>
                   <dd className="text-[26px] font-light text-gc-burgundy tabular-nums">
                     {calc.count > 0 ? eur(calc.cap) : "–"}

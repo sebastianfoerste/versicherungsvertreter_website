@@ -114,10 +114,6 @@ export function DeadlineCalculator({ onDeadlineChange }: DeadlinesProps) {
           <h2 id="calc-deadline-title" className="mb-2 text-[22px] md:text-[24px] font-normal text-gc-black">
             Bis wann muss ich den Anspruch geltend machen?
           </h2>
-          <p className="mb-6 text-[14px] leading-[22px] text-gc-muted">
-            Die gesetzliche Ausschlussfrist beträgt genau ein Jahr ab Vertragsbeendigung. Ermitteln Sie hier Ihren
-            Stichtag und sichern Sie Ihren Termin im Kalender.
-          </p>
 
           <label htmlFor="end-date" className="gc-label">
             Datum der Vertragsbeendigung

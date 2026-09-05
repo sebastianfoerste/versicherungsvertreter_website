@@ -500,7 +500,7 @@ export default function ContactForm({ precheck, calculator, deadline }: Props) {
                     aria-busy={submitting ? "true" : undefined}
                     className="gc-btn-primary"
                   >
-                    {submitting ? "Wird gesendet..." : "Anfrage senden"}
+                    Anfrage senden
                   </button>
                   <span className="text-[12px] text-gc-soft">* Pflichtfelder</span>
                 </div>
