@@ -104,10 +104,14 @@ export const submitInquiry = onRequest(
     const now = Date.now();
     const tenMinWindow = 10 * 60 * 1000;
     const oneHourWindow = 60 * 60 * 1000;
-    const RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
     // Firestore TTL deletes a document once the named Timestamp field lies in
     // the past. It adds no retention period itself, so the expiry is written here.
-    const expiresAt = admin.firestore.Timestamp.fromMillis(now + RETENTION_MS);
+    // Delivery logs keep 90 days; rate-limit counters are useless once their
+    // window has closed, so they go after 7.
+    const LOG_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
+    const LIMIT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+    const logExpiresAt = admin.firestore.Timestamp.fromMillis(now + LOG_RETENTION_MS);
+    const limitExpiresAt = admin.firestore.Timestamp.fromMillis(now + LIMIT_RETENTION_MS);
 
     // Read and write share one transaction, so two concurrent requests cannot
     // both observe count = limit - 1 and both pass.
@@ -118,10 +122,10 @@ export const submitInquiry = onRequest(
         const data = snap.exists ? snap.data()! : null;
         if (data && now - data.windowStart < windowMs) {
           if (data.count >= limit) return false;
-          tx.update(ref, { count: admin.firestore.FieldValue.increment(1), expiresAt });
+          tx.update(ref, { count: admin.firestore.FieldValue.increment(1), expiresAt: limitExpiresAt });
           return true;
         }
-        tx.set(ref, { windowStart: now, count: 1, expiresAt });
+        tx.set(ref, { windowStart: now, count: 1, expiresAt: limitExpiresAt });
         return true;
       });
     };
@@ -209,7 +213,7 @@ export const submitInquiry = onRequest(
       await db.collection("inquiry_log").doc(serverId).set({
         id: serverId,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        expiresAt,
+        expiresAt: logExpiresAt,
         deliveredAt: new Date().toISOString(),
         status: "delivered",
         messageBytes,
