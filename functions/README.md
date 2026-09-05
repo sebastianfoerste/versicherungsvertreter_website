@@ -169,9 +169,10 @@ past. It adds no retention period of its own, and it ignores fields that are
 not Timestamps. So a policy on `createdAt` would purge every record within a
 day of writing it, and a policy on the numeric `windowStart` would never fire.
 
-The function therefore writes an explicit `expiresAt` Timestamp, 90 days from
-the time of the request, on every document in both collections. The TTL policy
-is set on that field.
+The function therefore writes an explicit `expiresAt` Timestamp on every
+document: 90 days ahead for `inquiry_log`, 7 days ahead for `ratelimits`, whose
+counters are meaningless once their window has closed. Both TTL policies are
+set on that field.
 
 1. **`inquiry_log` collection**, field `expiresAt`:
    ```bash
