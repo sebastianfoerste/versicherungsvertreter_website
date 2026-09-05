@@ -30,6 +30,9 @@ describe("evaluatePreCheck", () => {
     expect(res.tone).toBe("neutral");
     expect(res.text).toContain("Mit Ablauf der Kündigungsfrist entsteht der Anspruch");
     expect(res.text).toContain("Vorläufige Einordnung der übrigen Angaben:");
+    // Notice is still running, so no Frist has started; the verdict-5 sentence about
+    // Fristwahrung must not be appended here.
+    expect(res.text).not.toContain("Fristwahrung");
   });
 
   it("verdict 3: ended + Eigenkündigung ohne Anlass yields 'Anspruch voraussichtlich ausgeschlossen'", () => {
