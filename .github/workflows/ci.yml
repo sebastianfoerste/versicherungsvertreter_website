@@ -36,6 +36,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      # scripts/update-headers.js rewrites firebase.json with the CSP hashes
+      # of the bundle just built. If that differs from what is committed, the
+      # committed hash is stale and a manual `firebase deploy` would ship it.
+      - name: Verify committed CSP hashes match the build
+        run: git diff --exit-code -- firebase.json
+
       # Preview channels only on pull_request: on a push event
       # github.event.number is empty and github.ref_name may contain "/",
       # which is not a legal Firebase Hosting channel id.

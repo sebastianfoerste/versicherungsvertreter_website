@@ -164,22 +164,31 @@ The GitHub secret blocks only the deploy step of P1-10, and only partially.
 
 # Step 4: Firestore TTL Retention Policies (Task P0-1(d))
 
-To ensure data minimization under GDPR and prevent indefinite retention of logs and rate limit entries, configure 90-day Time-To-Live (TTL) policies in Firestore:
+Firestore TTL deletes a document once the named **Timestamp** field lies in the
+past. It adds no retention period of its own, and it ignores fields that are
+not Timestamps. So a policy on `createdAt` would purge every record within a
+day of writing it, and a policy on the numeric `windowStart` would never fire.
 
-1. **`inquiry_log` collection**:
-   Field: `createdAt`
-   TTL: 90 days (7776000 seconds)
-   Command:
+The function therefore writes an explicit `expiresAt` Timestamp, 90 days from
+the time of the request, on every document in both collections. The TTL policy
+is set on that field.
+
+1. **`inquiry_log` collection**, field `expiresAt`:
    ```bash
-   gcloud firestore fields ttls update createdAt --collection-group=inquiry_log --enable-ttl --project=versicherungsvertreter
+   gcloud firestore fields ttls update expiresAt --collection-group=inquiry_log --enable-ttl --project=versicherungsvertreter
    ```
 
-2. **`ratelimits` collection**:
-   Field: `windowStart`
-   TTL: 90 days (7776000 seconds)
-   Command:
+2. **`ratelimits` collection**, field `expiresAt`:
    ```bash
-   gcloud firestore fields ttls update windowStart --collection-group=ratelimits --enable-ttl --project=versicherungsvertreter
+   gcloud firestore fields ttls update expiresAt --collection-group=ratelimits --enable-ttl --project=versicherungsvertreter
    ```
-Alternatively, configure them in the Google Cloud Console under Firestore > Time-to-live (TTL).
+
+Verify with:
+```bash
+gcloud firestore fields ttls list --project=versicherungsvertreter
+```
+
+Both policies are already applied for this project (see the pull request that
+introduced them). Deletion happens within 24 hours of expiry, not at the
+instant; that lag is Firestore's, not the function's.
 

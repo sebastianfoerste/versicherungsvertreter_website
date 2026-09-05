@@ -92,54 +92,52 @@ export const submitInquiry = onRequest(
     }
 
     // 4. Rate limiting: 5 req / 10 min per IP, 3 req / hour per email
-    const rawIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown-ip";
-    const ipStr = Array.isArray(rawIp) ? rawIp[0] : rawIp.split(",")[0].trim();
+    // Google Front End appends the real client address as the LAST entry of
+    // x-forwarded-for; anything before it is client-supplied and spoofable.
+    const rawXff = req.headers["x-forwarded-for"];
+    const xff = Array.isArray(rawXff) ? rawXff.join(",") : rawXff || "";
+    const xffParts = xff.split(",").map((part) => part.trim()).filter(Boolean);
+    const ipStr = xffParts.length ? xffParts[xffParts.length - 1] : req.socket.remoteAddress || "unknown-ip";
     const ipHash = sha256(`ip:${ipStr}`);
     const emailHash = sha256(`email:${email}`);
 
     const now = Date.now();
     const tenMinWindow = 10 * 60 * 1000;
     const oneHourWindow = 60 * 60 * 1000;
+    const RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
+    // Firestore TTL deletes a document once the named Timestamp field lies in
+    // the past. It adds no retention period itself, so the expiry is written here.
+    const expiresAt = admin.firestore.Timestamp.fromMillis(now + RETENTION_MS);
+
+    // Read and write share one transaction, so two concurrent requests cannot
+    // both observe count = limit - 1 and both pass.
+    const consume = async (docId: string, windowMs: number, limit: number): Promise<boolean> => {
+      const ref = db.collection("ratelimits").doc(docId);
+      return db.runTransaction(async (tx) => {
+        const snap = await tx.get(ref);
+        const data = snap.exists ? snap.data()! : null;
+        if (data && now - data.windowStart < windowMs) {
+          if (data.count >= limit) return false;
+          tx.update(ref, { count: admin.firestore.FieldValue.increment(1), expiresAt });
+          return true;
+        }
+        tx.set(ref, { windowStart: now, count: 1, expiresAt });
+        return true;
+      });
+    };
 
     try {
-      // Check IP rate limit
-      const ipLimitRef = db.collection("ratelimits").doc(`ip_${ipHash}`);
-      const ipLimitDoc = await ipLimitRef.get();
-      if (ipLimitDoc.exists) {
-        const data = ipLimitDoc.data()!;
-        if (now - data.windowStart < tenMinWindow) {
-          if (data.count >= 5) {
-            res.status(429).json({ error: "rate_limited", message: "Too many requests from this IP" });
-            return;
-          }
-          await ipLimitRef.update({ count: admin.firestore.FieldValue.increment(1) });
-        } else {
-          await ipLimitRef.set({ windowStart: now, count: 1 });
-        }
-      } else {
-        await ipLimitRef.set({ windowStart: now, count: 1 });
+      if (!(await consume(`ip_${ipHash}`, tenMinWindow, 5))) {
+        res.status(429).json({ error: "rate_limited", message: "Too many requests from this IP" });
+        return;
       }
-
-      // Check Email rate limit
-      const emailLimitRef = db.collection("ratelimits").doc(`email_${emailHash}`);
-      const emailLimitDoc = await emailLimitRef.get();
-      if (emailLimitDoc.exists) {
-        const data = emailLimitDoc.data()!;
-        if (now - data.windowStart < oneHourWindow) {
-          if (data.count >= 3) {
-            res.status(429).json({ error: "rate_limited", message: "Too many requests for this email" });
-            return;
-          }
-          await emailLimitRef.update({ count: admin.firestore.FieldValue.increment(1) });
-        } else {
-          await emailLimitRef.set({ windowStart: now, count: 1 });
-        }
-      } else {
-        await emailLimitRef.set({ windowStart: now, count: 1 });
+      if (!(await consume(`email_${emailHash}`, oneHourWindow, 3))) {
+        res.status(429).json({ error: "rate_limited", message: "Too many requests for this email" });
+        return;
       }
     } catch (err) {
       console.error("Rate limit check failed", err);
-      // Continue if rate limit storage fails
+      // Fail open: availability of the intake path outranks exact limiting
     }
 
     // 5. Verify secrets exist
@@ -211,6 +209,7 @@ export const submitInquiry = onRequest(
       await db.collection("inquiry_log").doc(serverId).set({
         id: serverId,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        expiresAt,
         deliveredAt: new Date().toISOString(),
         status: "delivered",
         messageBytes,
