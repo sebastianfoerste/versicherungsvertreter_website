@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MAIN_NAV, PAGE_SECTIONS, PARTNER, SITE } from "../config";
+import { MAIN_NAV, PARTNER } from "../config";
 import { cn } from "../utils/cn";
 import SearchModal from "./SearchModal";
 
@@ -134,21 +134,6 @@ export default function Header() {
               <SearchIcon className="w-3.5 h-3.5 text-[#727375]" />
             </button>
           </div>
-
-          {/* Language Switcher */}
-          <div className="flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#727375] select-none shrink-0">
-            <span className="font-normal text-gc-black" aria-current="true">DE</span>
-            <span className="text-gc-border">|</span>
-            <a
-              href="https://gunnercooke.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-gc-burgundy"
-              title="gunnercooke UK / International"
-            >
-              EN
-            </a>
-          </div>
         </div>
 
         {/* Mobile controls: Search + gunnercooke signature MENU/CLOSE button */}
@@ -241,11 +226,6 @@ export default function Header() {
             <a href={`mailto:${PARTNER.email}`} className="block hover:text-gc-burgundy break-all">
               {PARTNER.email}
             </a>
-            <div className="pt-3 flex items-center gap-2 uppercase tracking-[0.12em] text-[12px]">
-              <span className="font-normal text-gc-black">DE</span>
-              <span className="text-gc-border">|</span>
-              <a href="https://gunnercooke.com/" className="hover:text-gc-burgundy">EN</a>
-            </div>
           </div>
         </div>
       </div>

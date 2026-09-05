@@ -103,42 +103,14 @@ export default function LetterGenerator() {
     }
   };
 
-  const download = (format: "txt" | "doc" = "txt") => {
-    if (format === "doc") {
-      const paragraphs = letter
-        .split("\n\n")
-        .map((p) => `<p style="margin:0 0 10pt 0;">${p.replace(/\n/g, "<br/>")}</p>`)
-        .join("");
-      const htmlContent = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Buchauszug-Anforderung § 87c HGB</title>
-<style>
-  body { font-family: 'Calibri', Arial, sans-serif; font-size: 11pt; line-height: 1.4; color: #111; padding: 40px; }
-  p { margin: 0 0 10pt; }
-</style>
-</head>
-<body>
-${paragraphs}
-</body>
-</html>`;
-      const blob = new Blob(["\ufeff" + htmlContent], { type: "application/msword;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Buchauszug-Anforderung-87c-HGB.doc";
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
-      const blob = new Blob([letter], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Buchauszug-Anforderung-87c-HGB.txt";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+  const downloadTxt = () => {
+    const blob = new Blob([letter], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "Buchauszug-Anforderung-87c-HGB.txt";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -286,10 +258,7 @@ ${paragraphs}
                 <button type="button" onClick={copy} className="gc-btn-secondary gc-btn-sm">
                   {copied ? "✓ Kopiert" : "Kopieren"}
                 </button>
-                <button type="button" onClick={() => download("doc")} className="gc-btn-secondary gc-btn-sm">
-                  Word (.doc)
-                </button>
-                <button type="button" onClick={() => download("txt")} className="gc-btn-secondary gc-btn-sm">
+                <button type="button" onClick={downloadTxt} className="gc-btn-secondary gc-btn-sm">
                   Text (.txt)
                 </button>
                 <button type="button" onClick={() => window.print()} className="gc-btn-primary gc-btn-sm">

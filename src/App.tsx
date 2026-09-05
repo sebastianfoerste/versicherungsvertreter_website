@@ -6,11 +6,11 @@ import Overview from "./components/Overview";
 import PreCheck, { type PreCheckResult } from "./components/PreCheck";
 import Calculator, { type CalculatorResult } from "./components/Calculator";
 import LetterGenerator from "./components/LetterGenerator";
-import Deadlines, { type DeadlineResult } from "./components/Deadlines";
+import { DeadlineCalculator, DeadlinesExplainer, type DeadlineResult } from "./components/Deadlines";
 import { Approach, FAQ, RelatedExpertise, Disclaimer } from "./components/Sections";
 import ContactForm from "./components/ContactForm";
 import Footer from "./components/Footer";
-import CookieModal from "./components/CookieModal";
+import MobileBottomBar from "./components/MobileBottomBar";
 
 export default function App() {
   const [precheck, setPrecheck] = useState<PreCheckResult | null>(null);
@@ -28,14 +28,15 @@ export default function App() {
 
       <Header />
 
-      <main id="main" style={{ paddingTop: "var(--gc-header-height)" }}>
+      <main id="main" className="pb-20 lg:pb-0" style={{ paddingTop: "var(--gc-header-height)" }}>
         <Hero />
+        <DeadlineCalculator onDeadlineChange={setDeadline} />
         <KeyContacts />
         <Overview />
         <PreCheck onComplete={setPrecheck} />
         <Calculator onCalculate={setCalculator} />
         <LetterGenerator />
-        <Deadlines onDeadlineChange={setDeadline} />
+        <DeadlinesExplainer />
         <Approach />
         <FAQ />
         <ContactForm precheck={precheck} calculator={calculator} deadline={deadline} />
@@ -44,7 +45,7 @@ export default function App() {
       </main>
 
       <Footer />
-      <CookieModal />
+      <MobileBottomBar />
     </div>
   );
 }

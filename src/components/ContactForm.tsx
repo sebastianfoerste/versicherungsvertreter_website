@@ -40,6 +40,9 @@ export default function ContactForm({ precheck, calculator, deadline }: Props) {
   });
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [serverDelivered, setServerDelivered] = useState(false);
+  const [submissionError, setSubmissionError] = useState(false);
   const [activeCaseId, setActiveCaseId] = useState<string>("");
   const [copied, setCopied] = useState(false);
 
@@ -93,9 +96,14 @@ export default function ContactForm({ precheck, calculator, deadline }: Props) {
     }
 
     if (calculator) {
+      const estimateText =
+        calculator.lowerEstimate !== undefined && calculator.upperEstimate !== undefined
+          ? `${calculator.lowerEstimate.toLocaleString("de-DE")} – ${calculator.upperEstimate.toLocaleString("de-DE")} EUR`
+          : `~${calculator.estimate.toLocaleString("de-DE")} EUR`;
+
       lines.push(
         `ORIENTIERUNGSRECHNER:`,
-        `Orientierungswert: ~${calculator.estimate.toLocaleString("de-DE")} EUR`,
+        `Orientierungswert-Spanne: ${estimateText}`,
         `Jahresdurchschnitt: ${calculator.avg.toLocaleString("de-DE")} EUR`,
         `Ausgleichsfähiger Anteil: ${calculator.share} %`,
         `Sparte: ${calculator.sparteLabel}`,
@@ -105,10 +113,18 @@ export default function ContactForm({ precheck, calculator, deadline }: Props) {
     }
 
     if (deadline) {
+      const daysLabel =
+        deadline.days > 1
+          ? `noch ${deadline.days} Tage`
+          : deadline.days === 1
+            ? "noch 1 Tag"
+            : deadline.days === 0
+              ? "Die Frist endet heute."
+              : "abgelaufen";
       lines.push(
         `FRISTRECHNER:`,
         `Vertragsende: ${deadline.endDateStr}`,
-        `Ausschlussfrist: ${deadline.deadlineStr} (${deadline.days >= 0 ? `noch ${deadline.days} Tage` : "abgelaufen"})`,
+        `Ausschlussfrist: ${deadline.deadlineStr} (${daysLabel})`,
         ``,
       );
     }
@@ -125,35 +141,62 @@ export default function ContactForm({ precheck, calculator, deadline }: Props) {
     return lines.filter((l) => l !== null).join("\n");
   };
 
-  const submit = (ev: FormEvent) => {
+  const submit = async (ev: FormEvent) => {
     ev.preventDefault();
-    if (form.website) return; // Honeypot
+    if (form.website) {
+      // Honeypot: pretend success, send nothing
+      setServerDelivered(false);
+      setSent(true);
+      return;
+    }
     const e = validate();
     setErrors(e);
     if (Object.keys(e).length) return;
 
     const id = precheck?.caseId || makeCaseId();
     setActiveCaseId(id);
-
     const summary = buildSummary(id);
 
-    // Save to localStorage
-    try {
-      const stored = JSON.parse(localStorage.getItem("gc_inquiries") || "[]");
-      stored.unshift({
-        id,
-        date: new Date().toISOString(),
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        summary,
-      });
-      localStorage.setItem("gc_inquiries", JSON.stringify(stored.slice(0, 20)));
-    } catch (err) {
-      console.error("Local storage save failed", err);
-    }
+    setSubmitting(true);
+    setSubmissionError(false);
 
-    setSent(true);
+    const endpoint =
+      import.meta.env.VITE_INQUIRY_ENDPOINT ||
+      "https://europe-west3-versicherungsvertreter.cloudfunctions.net/submitInquiry";
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim(),
+          end: form.end || undefined,
+          message: form.message.trim() || undefined,
+          website: form.website,
+          summary,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        const sid = data.id || id;
+        setActiveCaseId(sid);
+        setServerDelivered(true);
+        setSent(true);
+      } else {
+        setSubmissionError(true);
+        setServerDelivered(false);
+        setSent(true);
+      }
+    } catch {
+      setSubmissionError(true);
+      setServerDelivered(false);
+      setSent(true);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getMailtoHref = () => {
@@ -229,19 +272,41 @@ export default function ContactForm({ precheck, calculator, deadline }: Props) {
           <div className="gc-card border-t-2 border-t-gc-burgundy">
             {sent ? (
               <div className="py-6" role="status">
-                <div className="text-center">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center border-2 border-emerald-600 bg-emerald-50 text-[24px] text-emerald-700">
-                    ✓
+                {submissionError ? (
+                  <div className="text-center">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center border-2 border-gc-burgundy bg-gc-rose text-[24px] text-gc-burgundy">
+                      !
+                    </div>
+                    <h3 className="mb-2 text-[24px]">Anfrage nicht übermittelt</h3>
+                    <p className="mx-auto mb-6 max-w-md text-[15px] leading-[25px] text-gc-muted">
+                      Die Anfrage konnte nicht übermittelt werden. Bitte rufen Sie uns an oder senden Sie die vorbereitete E-Mail.
+                    </p>
                   </div>
-                  <h3 className="mb-2 text-[24px]">Vielen Dank für Ihre Anfrage</h3>
-                  <div className="mb-4 inline-block border border-gc-rose-border bg-gc-rose px-4 py-1.5 font-mono text-[13px] font-normal text-gc-burgundy">
-                    Vorgangs-ID: {activeCaseId}
+                ) : serverDelivered ? (
+                  <div className="text-center">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center border-2 border-emerald-600 bg-emerald-50 text-[24px] text-emerald-700">
+                      ✓
+                    </div>
+                    <h3 className="mb-2 text-[24px]">Vielen Dank für Ihre Anfrage</h3>
+                    <div className="mb-4 inline-block border border-gc-rose-border bg-gc-rose px-4 py-1.5 font-mono text-[13px] font-normal text-gc-burgundy">
+                      Ihre Referenz: {activeCaseId}
+                    </div>
+                    <p className="mx-auto mb-6 max-w-md text-[15px] leading-[25px] text-gc-muted">
+                      Ihre Angaben wurden strukturiert erfasst. {PARTNER.name} wird Ihren Fall prüfen
+                      und sich zeitnah telefonisch oder per E-Mail bei Ihnen melden.
+                    </p>
                   </div>
-                  <p className="mx-auto mb-6 max-w-md text-[15px] leading-[25px] text-gc-muted">
-                    Ihre Angaben wurden strukturiert erfasst. {PARTNER.name} wird Ihren Fall prüfen
-                    und sich zeitnah telefonisch oder per E-Mail bei Ihnen melden.
-                  </p>
-                </div>
+                ) : (
+                  <div className="text-center">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center border-2 border-gc-burgundy bg-gc-rose text-[24px] text-gc-burgundy">
+                      ✉️
+                    </div>
+                    <h3 className="mb-2 text-[24px]">E-Mail vorbereitet</h3>
+                    <p className="mx-auto mb-6 max-w-md text-[15px] leading-[25px] text-gc-muted">
+                      Ihre Anfrage wurde noch nicht übermittelt. Bitte senden Sie die vorbereitete E-Mail ab oder rufen Sie uns an.
+                    </p>
+                  </div>
+                )}
 
                 <div className="border border-gc-border-light bg-gc-light p-5 my-6 space-y-3 text-[13px] leading-[20px] text-gc-body">
                   <div className="font-normal text-[14px] text-gc-black border-b border-gc-border-light pb-2">
@@ -391,7 +456,14 @@ export default function ContactForm({ precheck, calculator, deadline }: Props) {
                       <div>
                         Ausschlussfrist:{" "}
                         <strong className="font-normal">{deadline.deadlineStr}</strong> (
-                        {deadline.days >= 0 ? `noch ${deadline.days} Tage` : "abgelaufen"})
+                        {deadline.days > 1
+                          ? `noch ${deadline.days} Tage`
+                          : deadline.days === 1
+                            ? "noch 1 Tag"
+                            : deadline.days === 0
+                              ? "Die Frist endet heute."
+                              : "abgelaufen"}
+                        )
                       </div>
                     )}
                   </div>
@@ -410,7 +482,7 @@ export default function ContactForm({ precheck, calculator, deadline }: Props) {
                       Ich willige ein, dass meine Angaben zur Bearbeitung meiner Anfrage verarbeitet
                       werden. Die Einwilligung kann ich jederzeit widerrufen. Weitere Informationen
                       in der{" "}
-                      <a href={`${SITE.baseUrl}/datenschutz/`} className="gc-link">
+                      <a href={`${SITE.baseUrl}/privacy-policy/`} className="gc-link">
                         Datenschutzerklärung
                       </a>
                       . *
@@ -422,7 +494,12 @@ export default function ContactForm({ precheck, calculator, deadline }: Props) {
                 </div>
 
                 <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
-                  <button type="submit" className="gc-btn-primary">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    aria-busy={submitting ? "true" : undefined}
+                    className="gc-btn-primary"
+                  >
                     Anfrage senden
                   </button>
                   <span className="text-[12px] text-gc-soft">* Pflichtfelder</span>

@@ -1,0 +1,56 @@
+name: CI & Preview Deploy
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  ci_and_preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # scripts/update-headers.js rewrites firebase.json with the CSP hashes
+      # of the bundle just built. If that differs from what is committed, the
+      # committed hash is stale and a manual `firebase deploy` would ship it.
+      - name: Verify committed CSP hashes match the build
+        run: git diff --exit-code -- firebase.json
+
+      # Preview channels only on pull_request: on a push event
+      # github.event.number is empty and github.ref_name may contain "/",
+      # which is not a legal Firebase Hosting channel id.
+      - name: Deploy to Firebase Preview Channel
+        if: github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          projectId: versicherungsvertreter
+          channelId: 'pr-${{ github.event.number }}'
+          expires: 7d

@@ -3,12 +3,12 @@
  * Alle kanzlei- und personenbezogenen Angaben können hier angepasst werden.
  */
 
+export const SITE_URL = "https://versicherungsvertreter.web.app";
+
 export const SITE = {
   name: "gunnercooke",
   legalName: "gunnercooke GmbH",
   baseUrl: "https://gunnercookede.com",
-  pagePath:
-    "/expertise/commercial/vertrieb-handel-logistik/ausgleichsanspruch-versicherungsvertreter/",
   phone: "+49 30 220 131 000",
   phoneHref: "tel:+4930220131000",
   email: "centralservices@gunnercooke.de",
@@ -48,7 +48,7 @@ export const MAIN_NAV = [
 /** Breadcrumb dieser Unterseite */
 export const BREADCRUMB = [
   { label: "Home", href: `${SITE.baseUrl}/` },
-  { label: "Expertise", href: `${SITE.baseUrl}/practice-area/commercial-law/` },
+  { label: "Sachverstand", href: `${SITE.baseUrl}/sachverstand/` },
   { label: "Commercial Law", href: `${SITE.baseUrl}/practice-area/commercial-law/` },
   { label: "Vertriebsrecht" },
   { label: "Ausgleichsanspruch Versicherungsvertreter (§ 89b HGB)" },
@@ -67,64 +67,25 @@ export const PAGE_SECTIONS = [
   { id: "kontakt", label: "Get in Touch" },
 ];
 
-export const OFFICES = [
-  { city: "Berlin", lines: ["gunnercooke GmbH", "Kurfürstendamm 15", "10719 Berlin"] },
-  { city: "Düsseldorf", lines: ["gunnercooke GmbH", "Königsallee 27", "40212 Düsseldorf"] },
-  { city: "Frankfurt", lines: ["gunnercooke GmbH", "Opernplatz 14", "60313 Frankfurt am Main"] },
-  { city: "Hamburg", lines: ["gunnercooke GmbH", "Neuer Wall 44", "20354 Hamburg"] },
-  { city: "München", lines: ["gunnercooke GmbH", "Ludwigpalais, Ludwigstraße 8", "80539 München"] },
-  { city: "Zürich", lines: ["gunnercooke GmbH", "Bahnhofstrasse 10", "8001 Zürich"] },
-  { city: "Innsbruck", lines: ["gunnercooke GmbH", "Niederlassung Österreich", "Salurnerstraße 1/DG, 6020 Innsbruck"] },
-  { city: "Wien", lines: ["gunnercooke GmbH", "Sprechstelle Wien", "Fleischmarkt 1, 1010 Wien"] },
-];
-
-export const FOOTER_LINKS = {
-  expertise: [
-    { label: "Commercial Law", href: `${SITE.baseUrl}/expertise/commercial/` },
-    { label: "Vertrieb, Handel & Logistik", href: `${SITE.baseUrl}/expertise/commercial/vertrieb-handel-logistik/` },
-    { label: "Vertragsrecht", href: `${SITE.baseUrl}/expertise/commercial/vertragsrecht/` },
-    { label: "Dispute Resolution", href: `${SITE.baseUrl}/expertise/dispute-resolution/` },
-    { label: "Versicherung & Haftung", href: `${SITE.baseUrl}/expertise/dispute-resolution/versicherung-haftung/` },
-  ],
-  firm: [
-    { label: "Our Approach", href: `${SITE.baseUrl}/our-approach/` },
-    { label: "People", href: `${SITE.baseUrl}/people/` },
-    { label: "News & Insights", href: `${SITE.baseUrl}/news-insights/` },
-    { label: "Join Us", href: `${SITE.baseUrl}/join-us/` },
-    { label: "Get in Touch", href: `${SITE.baseUrl}/get-in-touch/` },
-  ],
-  legal: [
-    { label: "Impressum", href: `${SITE.baseUrl}/impressum/` },
-    { label: "Datenschutz", href: `${SITE.baseUrl}/datenschutz/` },
-    { label: "Mandatsbedingungen", href: `${SITE.baseUrl}/mandatsbedingungen/` },
-    { label: "Cookie-Einstellungen", href: "#cookie-einstellungen" },
-  ],
-  social: [
-    { label: "LinkedIn", href: "https://www.linkedin.com/company/gunnercooke/" },
-    { label: "Instagram", href: "https://www.instagram.com/gunnercooke/" },
-    { label: "YouTube", href: "https://www.youtube.com/@gunnercooke" },
-  ],
-};
-
 export const RELATED_EXPERTISE = [
   {
     title: "Vertrieb, Handel & Logistik",
     text: "Gestaltung und Beendigung von Vertriebsverträgen, Handelsvertreter- und Vertragshändlerrecht.",
-    href: `${SITE.baseUrl}/expertise/commercial/vertrieb-handel-logistik/`,
+    href: `${SITE.baseUrl}/sachverstand/`,
   },
   {
     title: "Vertragsrecht",
     text: "Prüfung, Verhandlung und Durchsetzung komplexer Vertragswerke im B2B-Bereich.",
-    href: `${SITE.baseUrl}/expertise/commercial/vertragsrecht/`,
+    href: `${SITE.baseUrl}/sachverstand/`,
   },
   {
     title: "Prozessführung und Konfliktbewältigung",
     text: "Strategische Vertretung vor staatlichen Gerichten und Schiedsgerichten sowie in Mediationen.",
-    href: `${SITE.baseUrl}/expertise/dispute-resolution/prozessfuehrung-und-konfliktbewaeltigung/`,
+    href: `${SITE.baseUrl}/sachverstand/`,
   },
   {
     title: "Versicherung & Haftung",
     text: "Beratung an der Schnittstelle von Versicherungsvertrieb, Haftung und Regulierung.",
-    href: `${SITE.baseUrl}/expertise/dispute-resolution/versicherung-haftung/`,
+    href: `${SITE.baseUrl}/sachverstand/`,
   },
 ];

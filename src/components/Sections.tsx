@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RELATED_EXPERTISE } from "../config";
+import { RELATED_EXPERTISE, SITE } from "../config";
 import { FAQ_ITEMS, PROCESS_STEPS } from "../data/content";
 import { cn } from "../utils/cn";
 
@@ -123,7 +123,7 @@ export function RelatedExpertise() {
           <h2 id="related-title" className="text-[20px] text-gc-black">
             Weitere Expertise
           </h2>
-          <a href="https://www.gunnercooke.de/expertise/" className="gc-link text-[13px] uppercase tracking-[0.15em]">
+          <a href={`${SITE.baseUrl}/sachverstand/`} className="gc-link text-[13px] uppercase tracking-[0.15em]">
             Alle Rechtsgebiete →
           </a>
         </div>

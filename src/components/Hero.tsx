@@ -1,3 +1,5 @@
+import { PARTNER, SITE } from "../config";
+
 export default function Hero() {
   return (
     <section className="bg-white" aria-labelledby="page-title">
@@ -7,13 +9,13 @@ export default function Hero() {
           <nav aria-label="Breadcrumb" className="mb-4">
             <ol className="flex flex-wrap items-center gap-x-2 text-[12px] tracking-[0.06em] text-gc-muted">
               <li>
-                <a href="https://gunnercookede.com" className="transition-colors hover:text-gc-burgundy">
+                <a href={SITE.baseUrl} className="transition-colors hover:text-gc-burgundy">
                   Home
                 </a>
               </li>
               <li aria-hidden="true" className="text-gc-border">/</li>
               <li>
-                <a href="https://gunnercookede.com/practice-area/commercial-law/" className="transition-colors hover:text-gc-burgundy">
+                <a href={`${SITE.baseUrl}/practice-area/commercial-law/`} className="transition-colors hover:text-gc-burgundy">
                   Commercial Law
                 </a>
               </li>
@@ -38,12 +40,15 @@ export default function Hero() {
             gesetzliche Ausgleichsanspruch soll diesen Vorteil vergüten, er muss jedoch rechtzeitig geltend
             gemacht werden. Wir begleiten Sie von der Erstberatung bis zur Durchsetzung Ihres Anspruchs.
           </p>
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <a href="#vorab-check" className="gc-btn-primary">
               Vorab-Check starten
             </a>
             <a href="#kontakt" className="gc-btn-secondary">
               Erstgespräch anfragen
+            </a>
+            <a href={PARTNER.phoneHref} className="gc-btn-secondary">
+              Anrufen: +49 30 220 131 000
             </a>
           </div>
         </div>

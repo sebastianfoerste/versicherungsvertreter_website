@@ -1,15 +1,57 @@
 {
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" ci",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ],
   "hosting": {
     "public": "dist",
+    "cleanUrls": true,
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
+    "headers": [
       {
         "source": "**",
-        "destination": "/index.html"
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          },
+          {
+            "key": "Permissions-Policy",
+            "value": "camera=(), microphone=(), geolocation=()"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "DENY"
+          },
+          {
+            "key": "Content-Security-Policy",
+            "value": "default-src 'self'; script-src 'self' 'sha256-pTqKZpx+fM+z8Jh2ds2rp4cgyy8EpeDyb8NwQ0sh9fA=' 'sha256-soAbs7LmT3dPGNFglib6PbVgrGbiRDX8EA5wokkOc+Q=' 'sha256-R0JCSk8aQ8RleABaBmx9kHxV1eohk+NNy7PeqB4cUUA=' 'sha256-/4l8L7h0Yet1K9zl/DKWAvsivF2P5TtdG8iuJxXRnxY='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://europe-west3-versicherungsvertreter.cloudfunctions.net; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+          }
+        ]
       }
     ]
   }
